@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto_Slab, Merriweather } from "next/font/google";
+import { Roboto_Slab, Merriweather } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,16 +18,6 @@ const robotoSlab = Roboto_Slab({
   variable: "--font-serif",
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Dreamfund",
   description: "Track savings goals and watch your dreams take shape.",
@@ -44,8 +34,6 @@ export default function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        geistSans.variable,
-        geistMono.variable,
         "font-serif",
         robotoSlab.variable,
         merriweatherHeading.variable,

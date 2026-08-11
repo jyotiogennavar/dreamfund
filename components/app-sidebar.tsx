@@ -20,12 +20,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  analyticsPath,
-  goalsPath,
-  homePath,
-  settingsPath,
-} from "@/path";
+
+import { analyticsPath, goalsPath, homePath, settingsPath } from "@/path";
 
 const navItems = [
   {
@@ -58,19 +54,19 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border px-3 py-3">
+    <Sidebar collapsible="icon" className="font-serif">
+      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border p-0 px-2">
+        {/* logo */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               asChild
               tooltip="Dreamfund"
-              className="font-heading"
             >
               <Link href={homePath()}>
                 <HandCoins className="size-4" />
-                <span className="text-base font-semibold tracking-tight">
+                <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
                   Dreamfund
                 </span>
               </Link>
@@ -78,6 +74,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+      {/* content */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
