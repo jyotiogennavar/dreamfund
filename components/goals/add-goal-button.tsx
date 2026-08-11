@@ -1,13 +1,11 @@
-import { PlusIcon } from "lucide-react";
+"use client";
 
-import { Button } from "@/components/ui/button";
+import { CreateGoalDialog } from "@/components/goals/create-goal-dialog";
 
-/** Placeholder until Day 3 Create Goal dialog. */
-export function AddGoalButton() {
-  return (
-    <Button disabled title="Create Goal dialog arrives in Day 3">
-      <PlusIcon data-icon="inline-start" />
-      Add Goal
-    </Button>
-  );
+type AddGoalButtonProps = {
+  currency: string;
+};
+
+export function AddGoalButton({ currency }: AddGoalButtonProps) {
+  return <CreateGoalDialog currency={currency} />;
 }

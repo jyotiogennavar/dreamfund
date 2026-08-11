@@ -13,7 +13,7 @@ export default async function Home() {
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
             Your Goals
           </h2>
-          <AddGoalButton />
+          <AddGoalButton currency={currency} />
         </div>
 
         {goals.length === 0 ? (

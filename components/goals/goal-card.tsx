@@ -25,12 +25,19 @@ type GoalCardProps = {
 
 export function GoalCard({ goal, currency }: GoalCardProps) {
   const progress = goalProgressPercent(goal.currentAmount, goal.targetAmount);
+  const isComplete =
+    toNumber(goal.currentAmount) >= toNumber(goal.targetAmount);
 
   return (
     <Link href={goalPath(goal.id)} className="block h-full min-w-64 flex-1">
       <Card className="h-full transition-shadow hover:shadow-lg">
         <CardHeader>
-          <CardTitle>{goal.name}</CardTitle>
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle>{goal.name}</CardTitle>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              {isComplete ? "Completed" : "Active"}
+            </span>
+          </div>
           {goal.description ? (
             <CardDescription className="line-clamp-2">
               {goal.description}
@@ -47,7 +54,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
               {progress}%
             </p>
           </div>
-          
+
           <Progress value={progress} aria-label={`${goal.name} progress`} />
           <p className="text-muted-foreground text-xs">
             {formatMoney(

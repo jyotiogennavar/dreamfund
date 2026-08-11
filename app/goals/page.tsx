@@ -1,7 +1,21 @@
-export default function GoalsPage() {
-  return (
-    <div className="text-muted-foreground text-sm">
-      Goals — coming in Day 3
-    </div>
-  );
+import { GoalsBoard, type GoalsBoardItem } from "@/components/goals/goals-board";
+import { toNumber } from "@/lib/money";
+import { getDemoGoals } from "@/lib/queries/goals";
+import { getDemoUser } from "@/lib/demo-user";
+
+export default async function GoalsPage() {
+  const [user, goals] = await Promise.all([getDemoUser(), getDemoGoals()]);
+
+  const items: GoalsBoardItem[] = goals.map((goal) => ({
+    id: goal.id,
+    name: goal.name,
+    description: goal.description,
+    currentAmount: toNumber(goal.currentAmount),
+    targetAmount: toNumber(goal.targetAmount),
+    targetDate: goal.targetDate?.toISOString() ?? null,
+    category: goal.category,
+    priority: goal.priority,
+  }));
+
+  return <GoalsBoard currency={user.currency} goals={items} />;
 }
