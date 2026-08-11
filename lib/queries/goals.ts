@@ -53,3 +53,36 @@ export async function getOverviewStats() {
   const { stats } = await getDashboardData();
   return stats;
 }
+
+export async function getGoalDetail(goalId: string) {
+  const user = await getDemoUser();
+
+  const goal = await prisma.goal.findFirst({
+    where: { id: goalId, userId: user.id },
+    include: {
+      transactions: {
+        where: { type: TransactionType.DEPOSIT },
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+
+  if (!goal) {
+    return null;
+  }
+
+  return {
+    currency: user.currency,
+    goal,
+  };
+}
+
+export async function getGoalOptions() {
+  const user = await getDemoUser();
+
+  return prisma.goal.findMany({
+    where: { userId: user.id },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+}

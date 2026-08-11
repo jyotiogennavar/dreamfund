@@ -1,13 +1,34 @@
+import { notFound } from "next/navigation";
+
+import {
+  GoalDetail,
+  serializeGoalDetail,
+} from "@/components/goals/goal-detail";
+import { getGoalDetail, getGoalOptions } from "@/lib/queries/goals";
+
 export default async function GoalDetailPage({
   params,
 }: {
   params: Promise<{ goalId: string }>;
 }) {
   const { goalId } = await params;
+  const [detail, goalOptions] = await Promise.all([
+    getGoalDetail(goalId),
+    getGoalOptions(),
+  ]);
+
+  if (!detail) {
+    notFound();
+  }
+
+  const serialized = serializeGoalDetail(detail.goal);
 
   return (
-    <div className="text-muted-foreground text-sm">
-      Goal detail ({goalId}) — coming in Day 4
-    </div>
+    <GoalDetail
+      currency={detail.currency}
+      goal={serialized.goal}
+      contributions={serialized.contributions}
+      goalOptions={goalOptions}
+    />
   );
 }

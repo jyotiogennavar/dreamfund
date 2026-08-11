@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 
-import { createGoal, type CreateGoalState } from "@/app/actions/goals";
+import {
+  createGoal,
+  updateGoal,
+  type GoalActionState,
+} from "@/app/actions/goals";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -41,26 +45,45 @@ import {
   GoalPriority,
 } from "@/lib/generated/prisma/enums";
 
-const initialState: CreateGoalState = {};
+const initialState: GoalActionState = {};
+
+export type EditableGoal = {
+  id: string;
+  name: string;
+  description: string | null;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string | null;
+  category: GoalCategory;
+  priority: GoalPriority;
+};
 
 type CreateGoalDialogProps = {
   currency: string;
   trigger?: React.ReactNode;
+  goal?: EditableGoal;
 };
 
 export function CreateGoalDialog({
   currency,
   trigger,
+  goal,
 }: CreateGoalDialogProps) {
+  const isEditing = Boolean(goal);
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<GoalPriority>(GoalPriority.MEDIUM);
   const [category, setCategory] = useState<GoalCategory>(GoalCategory.OTHER);
   const [deadline, setDeadline] = useState<Date | undefined>();
   const [targetAmount, setTargetAmount] = useState("");
   const [startingAmount, setStartingAmount] = useState("");
-  const [state, formAction, pending] = useActionState(createGoal, initialState);
+  const [state, formAction, pending] = useActionState(
+    isEditing ? updateGoal : createGoal,
+    initialState,
+  );
 
   useEffect(() => {
     if (!state.success) {
@@ -72,32 +95,47 @@ export function CreateGoalDialog({
   }, [state.success, router]);
 
   useEffect(() => {
-    if (open) {
+    if (!open) {
+      setFormKey((key) => key + 1);
       return;
     }
 
-    setFormKey((key) => key + 1);
+    if (goal) {
+      setName(goal.name);
+      setDescription(goal.description ?? "");
+      setPriority(goal.priority);
+      setCategory(goal.category);
+      setDeadline(goal.targetDate ? new Date(goal.targetDate) : undefined);
+      setTargetAmount(String(goal.targetAmount));
+      setStartingAmount(String(goal.currentAmount));
+      return;
+    }
+
+    setName("");
+    setDescription("");
     setPriority(GoalPriority.MEDIUM);
     setCategory(GoalCategory.OTHER);
     setDeadline(undefined);
     setTargetAmount("");
     setStartingAmount("");
-  }, [open]);
+  }, [open, goal]);
 
   const monthlyPreview = useMemo(() => {
     const target = Number(targetAmount);
-    const starting = Number(startingAmount || 0);
+    const current = Number(
+      isEditing ? startingAmount || 0 : startingAmount || 0,
+    );
 
     if (!Number.isFinite(target) || target <= 0 || !deadline) {
       return null;
     }
 
     return suggestedMonthlySavings(
-      Number.isFinite(starting) ? starting : 0,
+      Number.isFinite(current) ? current : 0,
       target,
       deadline,
     );
-  }, [targetAmount, startingAmount, deadline]);
+  }, [targetAmount, startingAmount, deadline, isEditing]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -111,13 +149,17 @@ export function CreateGoalDialog({
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create Goal</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Goal" : "Create Goal"}</DialogTitle>
           <DialogDescription>
-            Set a target, deadline, and category for your next savings goal.
+            {isEditing
+              ? "Update the details for this savings goal."
+              : "Set a target, deadline, and category for your next savings goal."}
           </DialogDescription>
         </DialogHeader>
 
         <form key={formKey} action={formAction} className="grid gap-4">
+          {goal ? <input type="hidden" name="goalId" value={goal.id} /> : null}
+
           <div className="grid gap-2">
             <Label htmlFor="name">Goal Name</Label>
             <Input
@@ -125,6 +167,8 @@ export function CreateGoalDialog({
               name="name"
               placeholder="e.g. Japan Trip"
               required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
             />
           </div>
 
@@ -135,10 +179,12 @@ export function CreateGoalDialog({
               name="description"
               placeholder="What are you saving for?"
               rows={2}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className={cn("grid gap-4", !isEditing && "sm:grid-cols-2")}>
             <div className="grid gap-2">
               <Label htmlFor="targetAmount">Target Amount</Label>
               <Input
@@ -153,19 +199,21 @@ export function CreateGoalDialog({
                 onChange={(event) => setTargetAmount(event.target.value)}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="startingAmount">Starting Amount</Label>
-              <Input
-                id="startingAmount"
-                name="startingAmount"
-                type="number"
-                min="0"
-                step="1"
-                inputMode="decimal"
-                value={startingAmount}
-                onChange={(event) => setStartingAmount(event.target.value)}
-              />
-            </div>
+            {!isEditing ? (
+              <div className="grid gap-2">
+                <Label htmlFor="startingAmount">Starting Amount</Label>
+                <Input
+                  id="startingAmount"
+                  name="startingAmount"
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="decimal"
+                  value={startingAmount}
+                  onChange={(event) => setStartingAmount(event.target.value)}
+                />
+              </div>
+            ) : null}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -216,7 +264,6 @@ export function CreateGoalDialog({
                     selected={deadline}
                     onSelect={setDeadline}
                     captionLayout="dropdown"
-                    disabled={{ before: new Date() }}
                   />
                 </PopoverContent>
               </Popover>
@@ -255,7 +302,13 @@ export function CreateGoalDialog({
 
           <DialogFooter>
             <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-              {pending ? "Creating…" : "Create Goal"}
+              {pending
+                ? isEditing
+                  ? "Saving…"
+                  : "Creating…"
+                : isEditing
+                  ? "Save Changes"
+                  : "Create Goal"}
             </Button>
           </DialogFooter>
         </form>
