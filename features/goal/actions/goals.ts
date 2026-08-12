@@ -9,7 +9,7 @@ import {
 } from "@/lib/generated/prisma/client";
 import { getDemoUser } from "@/lib/demo-user";
 import { prisma } from "@/lib/db";
-import { goalPath, goalsPath, homePath, analyticsPath } from "@/path";
+import { goalPath, goalsPath, homePath, analyticsPath } from "@/paths";
 
 export type GoalActionState = {
   error?: string;

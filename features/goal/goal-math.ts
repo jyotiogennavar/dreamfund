@@ -1,6 +1,6 @@
 import { differenceInCalendarMonths, isAfter, startOfMonth } from "date-fns";
 
-import { toNumber } from "@/lib/money";
+import { toNumber } from "@/utils/money";
 
 type Amount = number | string | { toString(): string };
 

@@ -9,7 +9,7 @@ import {
   createGoal,
   updateGoal,
   type GoalActionState,
-} from "@/app/actions/goals";
+} from "@/features/goal/actions/goals";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -36,9 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { suggestedMonthlySavings } from "@/lib/goal-math";
-import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/lib/goal-options";
-import { formatMoney } from "@/lib/money";
+import { suggestedMonthlySavings } from "@/features/goal/goal-math";
+import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/features/goal/constants";
+import { formatMoney } from "@/utils/money";
 import { cn } from "@/lib/utils";
 import {
   GoalCategory,

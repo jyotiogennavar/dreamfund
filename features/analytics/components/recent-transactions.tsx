@@ -14,8 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { categoryLabel } from "@/lib/goal-options";
-import { formatMoney } from "@/lib/money";
+import { categoryLabel } from "@/features/goal/constants";
+import { formatMoney } from "@/utils/money";
 import type { GoalCategory } from "@/lib/generated/prisma/enums";
 
 type TransactionRow = {

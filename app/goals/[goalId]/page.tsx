@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import {
   GoalDetail,
   serializeGoalDetail,
-} from "@/components/goals/goal-detail";
-import { getGoalDetail, getGoalOptions } from "@/lib/queries/goals";
+} from "@/features/goal/components/goal-detail";
+import { getGoalDetail, getGoalOptions } from "@/features/goal/queries/goals";
 
 export default async function GoalDetailPage({
   params,

@@ -1,7 +1,7 @@
-import { AddGoalButton } from "@/components/goals/add-goal-button";
-import { GoalCard } from "@/components/goals/goal-card";
+import { AddGoalButton } from "@/features/goal/components/add-goal-button";
+import { GoalCard } from "@/features/goal/components/goal-card";
 import { OverviewStats } from "@/components/overview-stats";
-import { getDashboardData } from "@/lib/queries/goals";
+import { getDashboardData } from "@/features/goal/queries/goals";
 
 export default async function Home() {
   const { currency, goals, stats } = await getDashboardData();

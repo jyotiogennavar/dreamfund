@@ -9,7 +9,7 @@ import {
   goalsPath,
   homePath,
   settingsPath,
-} from "@/path";
+} from "@/paths";
 
 export type SettingsActionState = {
   error?: string;

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 
-import { createDeposit, type GoalActionState } from "@/app/actions/goals";
+import { createDeposit, type GoalActionState } from "@/features/goal/actions/goals";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {

@@ -1,6 +1,6 @@
-import { GoalsBoard, type GoalsBoardItem } from "@/components/goals/goals-board";
-import { toNumber } from "@/lib/money";
-import { getDemoGoals } from "@/lib/queries/goals";
+import { GoalsBoard, type GoalsBoardItem } from "@/features/goal/components/goals-board";
+import { toNumber } from "@/utils/money";
+import { getDemoGoals } from "@/features/goal/queries/goals";
 import { getDemoUser } from "@/lib/demo-user";
 
 export default async function GoalsPage() {

@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { analyticsPath, goalsPath, homePath, settingsPath } from "@/path";
+import { analyticsPath, goalsPath, homePath, settingsPath } from "@/paths";
 
 const navItems = [
   {

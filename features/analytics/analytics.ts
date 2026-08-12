@@ -1,4 +1,4 @@
-import { toNumber } from "@/lib/money";
+import { toNumber } from "@/utils/money";
 import type { GoalPriority } from "@/lib/generated/prisma/enums";
 
 type Amount = number | string | { toString(): string };

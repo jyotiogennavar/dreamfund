@@ -1,13 +1,13 @@
-import { CompletionChart } from "@/components/analytics/completion-chart";
-import { PriorityChart } from "@/components/analytics/priority-chart";
-import { RecentTransactions } from "@/components/analytics/recent-transactions";
+import { CompletionChart } from "@/features/analytics/components/completion-chart";
+import { PriorityChart } from "@/features/analytics/components/priority-chart";
+import { RecentTransactions } from "@/features/analytics/components/recent-transactions";
 import { OverviewStats } from "@/components/overview-stats";
 import {
   buildCompletionChartData,
   buildPriorityChartData,
-} from "@/lib/analytics";
-import { toNumber } from "@/lib/money";
-import { getAnalyticsData } from "@/lib/queries/goals";
+} from "@/features/analytics/analytics";
+import { toNumber } from "@/utils/money";
+import { getAnalyticsData } from "@/features/analytics/queries/analytics";
 
 export default async function AnalyticsPage() {
   const { currency, goals, transactions, stats } = await getAnalyticsData();

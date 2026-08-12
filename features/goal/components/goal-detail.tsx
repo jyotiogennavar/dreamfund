@@ -1,12 +1,12 @@
 import { format } from "date-fns";
 import { PencilIcon } from "lucide-react";
 
-import { AddDepositDialog } from "@/components/goals/add-deposit-dialog";
+import { AddDepositDialog } from "@/features/goal/components/add-deposit-dialog";
 import {
   CreateGoalDialog,
   type EditableGoal,
-} from "@/components/goals/create-goal-dialog";
-import { DeleteGoalButton } from "@/components/goals/delete-goal-button";
+} from "@/features/goal/components/create-goal-dialog";
+import { DeleteGoalButton } from "@/features/goal/components/delete-goal-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,9 +28,9 @@ import {
   amountNeeded,
   goalProgressPercent,
   suggestedMonthlySavings,
-} from "@/lib/goal-math";
-import { categoryLabel, priorityLabel } from "@/lib/goal-options";
-import { formatMoney, toNumber } from "@/lib/money";
+} from "@/features/goal/goal-math";
+import { categoryLabel, priorityLabel } from "@/features/goal/constants";
+import { formatMoney, toNumber } from "@/utils/money";
 import type {
   GoalCategory,
   GoalPriority,

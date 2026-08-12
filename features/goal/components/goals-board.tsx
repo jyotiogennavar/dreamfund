@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 
-import { AddGoalButton } from "@/components/goals/add-goal-button";
-import { GoalCard } from "@/components/goals/goal-card";
+import { AddGoalButton } from "@/features/goal/components/add-goal-button";
+import { GoalCard } from "@/features/goal/components/goal-card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { goalProgressPercent } from "@/lib/goal-math";
-import { GOAL_CATEGORIES, categoryLabel } from "@/lib/goal-options";
+import { goalProgressPercent } from "@/features/goal/goal-math";
+import { GOAL_CATEGORIES, categoryLabel } from "@/features/goal/constants";
 import type { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 
 export type GoalsBoardItem = {

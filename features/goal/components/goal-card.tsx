@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { goalProgressPercent } from "@/lib/goal-math";
-import { formatMoney, toNumber } from "@/lib/money";
-import { goalPath } from "@/path";
+import { goalProgressPercent } from "@/features/goal/goal-math";
+import { formatMoney, toNumber } from "@/utils/money";
+import { goalPath } from "@/paths";
 
 type GoalCardProps = {
   goal: {

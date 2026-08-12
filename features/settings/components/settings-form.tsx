@@ -9,7 +9,7 @@ import {
   getExportCsv,
   updateSettings,
   type SettingsActionState,
-} from "@/app/actions/settings";
+} from "@/features/settings/actions/settings";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { CURRENCY_OPTIONS } from "@/lib/currency";
+import { CURRENCY_OPTIONS } from "@/utils/currency";
 
 const initialState: SettingsActionState = {};
 

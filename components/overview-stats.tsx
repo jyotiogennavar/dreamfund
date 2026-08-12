@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatMoney } from "@/lib/money";
+import { formatMoney } from "@/utils/money";
 
 type OverviewStatsProps = {
   currency: string;

@@ -1,4 +1,4 @@
-import { SettingsForm } from "@/components/settings/settings-form";
+import { SettingsForm } from "@/features/settings/components/settings-form";
 import { getDemoUser } from "@/lib/demo-user";
 
 export default async function SettingsPage() {

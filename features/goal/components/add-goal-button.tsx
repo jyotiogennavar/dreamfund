@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateGoalDialog } from "@/components/goals/create-goal-dialog";
+import { CreateGoalDialog } from "@/features/goal/components/create-goal-dialog";
 
 type AddGoalButtonProps = {
   currency: string;
