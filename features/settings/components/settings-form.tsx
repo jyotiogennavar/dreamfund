@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { DownloadIcon, Trash2Icon } from "lucide-react";
 
@@ -33,16 +33,18 @@ import { CURRENCY_OPTIONS } from "@/utils/currency";
 
 const initialState: SettingsActionState = {};
 
+type SettingsUser = {
+  name: string | null;
+  email: string;
+  currency: string;
+  avatarUrl: string | null;
+  notifyGoalAchieved: boolean;
+  notifyMonthlySummary: boolean;
+  notifyDepositReminder: boolean;
+};
+
 type SettingsFormProps = {
-  user: {
-    name: string | null;
-    email: string;
-    currency: string;
-    avatarUrl: string | null;
-    notifyGoalAchieved: boolean;
-    notifyMonthlySummary: boolean;
-    notifyDepositReminder: boolean;
-  };
+  user: SettingsUser;
 };
 
 export function SettingsForm({ user }: SettingsFormProps) {
@@ -57,6 +59,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [notifyDepositReminder, setNotifyDepositReminder] = useState(
     user.notifyDepositReminder,
   );
+  const [baselineUser, setBaselineUser] = useState(user);
   const [state, formAction, pending] = useActionState(
     updateSettings,
     initialState,
@@ -64,18 +67,18 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [exporting, startExport] = useTransition();
   const [clearing, startClear] = useTransition();
 
-  useEffect(() => {
+  if (
+    user.currency !== baselineUser.currency ||
+    user.notifyGoalAchieved !== baselineUser.notifyGoalAchieved ||
+    user.notifyMonthlySummary !== baselineUser.notifyMonthlySummary ||
+    user.notifyDepositReminder !== baselineUser.notifyDepositReminder
+  ) {
+    setBaselineUser(user);
     setCurrency(user.currency);
     setNotifyGoalAchieved(user.notifyGoalAchieved);
     setNotifyMonthlySummary(user.notifyMonthlySummary);
     setNotifyDepositReminder(user.notifyDepositReminder);
-  }, [user]);
-
-  useEffect(() => {
-    if (state.success) {
-      router.refresh();
-    }
-  }, [state.success, router]);
+  }
 
   const initials = (user.name || user.email)
     .split(/\s+/)
