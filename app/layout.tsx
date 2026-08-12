@@ -48,14 +48,16 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <AppHeader />
-                <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-                  {children}
-                </main>
-              </SidebarInset>
+            <SidebarProvider className="flex flex-col">
+              <AppHeader />
+              <div className="flex min-h-0 flex-1">
+                <AppSidebar />
+                <SidebarInset>
+                  <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+                    {children}
+                  </main>
+                </SidebarInset>
+              </div>
             </SidebarProvider>
           </TooltipProvider>
         </ThemeProvider>

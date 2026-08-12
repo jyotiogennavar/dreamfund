@@ -24,7 +24,7 @@ export default async function Home() {
             </p>
           </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto pb-1">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {goals.slice(0, 3).map((goal) => (
               <GoalCard key={goal.id} goal={goal} currency={currency} />
             ))}

@@ -29,7 +29,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
     toNumber(goal.currentAmount) >= toNumber(goal.targetAmount);
 
   return (
-    <Link href={goalPath(goal.id)} className="block h-full min-w-64 flex-1">
+    <Link href={goalPath(goal.id)} className="block h-full min-w-0">
       <Card className="h-full transition-shadow hover:shadow-lg">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">

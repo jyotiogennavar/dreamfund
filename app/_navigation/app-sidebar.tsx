@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChartColumn,
-  HandCoins,
   LayoutDashboard,
   Settings,
   Target,
@@ -15,7 +14,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -54,27 +52,9 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon" className="font-serif">
-      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border p-0 px-2">
-        {/* logo */}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              asChild
-              tooltip="Dreamfund"
-            >
-              <Link href={homePath()}>
-                <HandCoins className="size-4" />
-                <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-                  Dreamfund
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      {/* content */}
+    <Sidebar
+      className="top-14! h-[calc(100svh-3.5rem)]!"
+    >
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -83,6 +63,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
+                    className="text-[13px] tracking-wide [&_svg]:size-3.5"
                     isActive={item.isActive(pathname)}
                     tooltip={item.title}
                   >
