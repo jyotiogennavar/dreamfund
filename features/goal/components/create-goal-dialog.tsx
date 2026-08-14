@@ -39,10 +39,7 @@ import { suggestedMonthlySavings } from "@/features/goal/goal-math";
 import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/features/goal/constants";
 import { formatMoney } from "@/utils/money";
 import { cn } from "@/lib/utils";
-import {
-  GoalCategory,
-  GoalPriority,
-} from "@/lib/generated/prisma/enums";
+import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 
 const initialState: GoalActionState = {};
 

@@ -29,8 +29,8 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
     toNumber(goal.currentAmount) >= toNumber(goal.targetAmount);
 
   return (
-    <Link href={goalPath(goal.id)} className="block h-full min-w-0">
-      <Card className="h-full transition-shadow hover:shadow-lg">
+    <Link href={goalPath(goal.id)}>
+      <Card className="h-full max-w-md transition-shadow hover:shadow-lg">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle>{goal.name}</CardTitle>
@@ -47,7 +47,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
         <CardContent className="flex flex-col gap-3">
           <div className="flex items-end justify-between gap-2">
             <p className="text-muted-foreground text-xs">
-              {formatMoney(goal.currentAmount, currency)} /{" "}
+              {formatMoney(goal.currentAmount, currency)} /
               {formatMoney(goal.targetAmount, currency)}
             </p>
             <p className="font-heading text-sm font-medium tabular-nums">
@@ -63,7 +63,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
                 toNumber(goal.targetAmount) - toNumber(goal.currentAmount),
               ),
               currency,
-            )}{" "}
+            )}
             remaining
           </p>
         </CardContent>

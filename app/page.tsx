@@ -1,6 +1,7 @@
 import { AddGoalButton } from "@/features/goal/components/add-goal-button";
 import { GoalCard } from "@/features/goal/components/goal-card";
 import { OverviewStats } from "@/components/overview-stats";
+import { Placeholder } from "@/components/placeholder";
 import { getDashboardData } from "@/features/goal/queries/goals";
 
 export default async function Home() {
@@ -17,12 +18,10 @@ export default async function Home() {
         </div>
 
         {goals.length === 0 ? (
-          <div className="rounded-4xl border border-dashed px-6 py-12 text-center">
-            <p className="font-heading text-lg font-medium">No goals yet</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Create your first savings goal to start tracking progress.
-            </p>
-          </div>
+          <Placeholder
+            label="No goals yet"
+            description="Create your first savings goal to start tracking progress."
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {goals.slice(0, 3).map((goal) => (

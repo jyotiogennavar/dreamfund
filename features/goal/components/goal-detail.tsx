@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { PencilIcon } from "lucide-react";
 
+import { Placeholder } from "@/components/placeholder";
 import { AddDepositDialog } from "@/features/goal/components/add-deposit-dialog";
 import {
   CreateGoalDialog,
@@ -186,12 +187,11 @@ export function GoalDetail({
           Recent Contributions
         </h3>
         {contributions.length === 0 ? (
-          <div className="rounded-4xl border border-dashed px-6 py-10 text-center">
-            <p className="font-heading text-base font-medium">No deposits yet</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Add a deposit to start tracking contributions.
-            </p>
-          </div>
+          <Placeholder
+            label="No deposits yet"
+            description="Add a deposit to start tracking contributions."
+            className="py-10"
+          />
         ) : (
           <Card>
             <CardContent className="pt-6">

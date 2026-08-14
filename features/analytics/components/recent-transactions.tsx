@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import { Placeholder } from "@/components/placeholder";
 import {
   Card,
   CardContent,
@@ -42,12 +43,10 @@ export function RecentTransactions({
         Recent Transactions
       </h2>
       {transactions.length === 0 ? (
-        <div className="rounded-4xl border border-dashed px-6 py-12 text-center">
-          <p className="font-heading text-lg font-medium">No transactions yet</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Deposits will show up here once you start saving.
-          </p>
-        </div>
+        <Placeholder
+          label="No transactions yet"
+          description="Deposits will show up here once you start saving."
+        />
       ) : (
         <Card>
           <CardHeader className="sr-only">

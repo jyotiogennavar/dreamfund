@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Roboto_Slab, Merriweather } from "next/font/google";
+import { Inter, Merriweather } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,9 +13,9 @@ const merriweatherHeading = Merriweather({
   variable: "--font-heading",
 });
 
-const robotoSlab = Roboto_Slab({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -34,8 +34,8 @@ export default function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        "font-serif",
-        robotoSlab.variable,
+        "font-sans",
+        inter.variable,
         merriweatherHeading.variable,
       )}
       suppressHydrationWarning
