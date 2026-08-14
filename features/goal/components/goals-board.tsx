@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { AddGoalButton } from "@/features/goal/components/add-goal-button";
 import { GoalCard } from "@/features/goal/components/goal-card";
-import { Placeholder } from "@/components/placeholder";
+import { NewGoalCard } from "@/features/goal/components/new-goal-card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -126,18 +126,12 @@ export function GoalsBoard({
         </Select>
       </div>
 
-      {filteredGoals.length === 0 ? (
-        <Placeholder
-          label="No matching goals"
-          description="Try a different search or create a new goal."
-        />
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredGoals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} currency={currency} />
-          ))}
-        </div>
-      )}
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {filteredGoals.map((goal) => (
+          <GoalCard key={goal.id} goal={goal} currency={currency} />
+        ))}
+        <NewGoalCard currency={currency} />
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2Icon } from "lucide-react";
 
-import { deleteGoal } from "@/features/goal/actions/goals";
+import { deleteGoal } from "@/features/goal/actions/delete-goal";
 import { Button } from "@/components/ui/button";
 import { goalsPath } from "@/paths";
 

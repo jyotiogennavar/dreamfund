@@ -8,7 +8,7 @@ export default async function Home() {
   const { currency, goals, stats } = await getDashboardData();
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex-1 flex flex-col gap-8">
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">

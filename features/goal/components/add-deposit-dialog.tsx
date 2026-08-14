@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 
-import { createDeposit, type GoalActionState } from "@/features/goal/actions/goals";
+import { createDeposit } from "@/features/goal/actions/add-deposit";
+import type { GoalActionState } from "@/features/goal/actions/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -64,9 +65,11 @@ function AddDepositForm({
     initialState,
   );
 
-  if (state.success) {
-    onSuccess();
-  }
+  useEffect(() => {
+    if (state.success) {
+      onSuccess();
+    }
+  }, [state.success, onSuccess]);
 
   return (
     <form action={formAction} className="grid gap-4">

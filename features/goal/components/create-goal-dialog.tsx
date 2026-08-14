@@ -1,14 +1,12 @@
 "use client";
 
-import { useMemo, useState, useActionState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 
-import {
-  createGoal,
-  updateGoal,
-  type GoalActionState,
-} from "@/features/goal/actions/goals";
+import { createGoal } from "@/features/goal/actions/add-goal";
+import { updateGoal } from "@/features/goal/actions/update-goal";
+import type { GoalActionState } from "@/features/goal/actions/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -90,9 +88,11 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
     initialState,
   );
 
-  if (state.success) {
-    onSuccess();
-  }
+  useEffect(() => {
+    if (state.success) {
+      onSuccess();
+    }
+  }, [state.success, onSuccess]);
 
   const monthlyPreview = useMemo(() => {
     const target = Number(targetAmount);
