@@ -286,7 +286,7 @@ export function CreateGoalDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto [--dialog-max-width:42rem]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Goal" : "Create Goal"}</DialogTitle>
           <DialogDescription>

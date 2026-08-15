@@ -175,7 +175,7 @@ export function AddDepositDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Deposit</DialogTitle>
           <DialogDescription>
