@@ -1,5 +1,8 @@
 "use client";
 
+import { PlusIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { CreateGoalDialog } from "@/features/goal/components/create-goal-dialog";
 
 type AddGoalButtonProps = {
@@ -7,5 +10,15 @@ type AddGoalButtonProps = {
 };
 
 export function AddGoalButton({ currency }: AddGoalButtonProps) {
-  return <CreateGoalDialog currency={currency} />;
+  return (
+    <CreateGoalDialog
+      currency={currency}
+      trigger={
+        <Button className="px-5 has-data-[icon=inline-start]:pl-5">
+          <PlusIcon data-icon="inline-start" />
+          Add Goal
+        </Button>
+      }
+    />
+  );
 }

@@ -1,10 +1,21 @@
+import { Suspense } from "react";
+
 import { AddGoalButton } from "@/features/goal/components/add-goal-button";
 import { GoalCard } from "@/features/goal/components/goal-card";
 import { OverviewStats } from "@/components/overview-stats";
 import { Placeholder } from "@/components/placeholder";
+import { PageSpinner } from "@/components/ui/spinner";
 import { getDashboardData } from "@/features/goal/queries/goals";
 
-export default async function Home() {
+export default function Home() {
+  return (
+    <Suspense fallback={<PageSpinner />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+async function HomeContent() {
   const { currency, goals, stats } = await getDashboardData();
 
   return (
