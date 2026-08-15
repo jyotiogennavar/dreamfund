@@ -156,7 +156,8 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
             errorFor("name") ? `${formId}-name-error` : undefined
           }
           onChange={(event) => {
-            setName(event.target.value);
+            const value = event.target.value;
+            setName(value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
             dismissError("name");
           }}
         />

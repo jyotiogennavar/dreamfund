@@ -1,5 +1,7 @@
 "use server";
 
+import { redirect } from "next/navigation";
+
 import { getOwnedGoal, revalidateGoalPaths } from "@/features/goal/actions/shared";
 import { prisma } from "@/lib/db";
 import {
@@ -7,6 +9,7 @@ import {
   toActionState,
   type ActionState,
 } from "@/lib/form";
+import { goalsPath } from "@/paths";
 
 export async function deleteGoal(
   goalId: string,
@@ -24,8 +27,9 @@ export async function deleteGoal(
 
     await prisma.goal.delete({ where: { id: goalId } });
     revalidateGoalPaths(goalId);
-    return toActionState("SUCCESS", "Goal deleted");
   } catch (error) {
     return fromErrorToActionState(error);
   }
+
+  redirect(goalsPath());
 }
