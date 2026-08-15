@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Merriweather } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -11,9 +11,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { PageSpinner } from "@/components/ui/spinner";
 
-const merriweatherHeading = Merriweather({
+const manropeHeading = Manrope({
   subsets: ["latin"],
-  variable: "--font-heading",
+  variable: "--font-manrope",
 });
 
 const inter = Inter({
@@ -39,7 +39,7 @@ export default function RootLayout({
         "antialiased",
         "font-sans",
         inter.variable,
-        merriweatherHeading.variable,
+        manropeHeading.variable,
       )}
       suppressHydrationWarning
     >
