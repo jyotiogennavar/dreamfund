@@ -37,6 +37,32 @@ describe("createGoalSchema", () => {
     );
   });
 
+  it("rejects scientific notation and extra decimals", () => {
+    const scientific = parseForm(
+      createGoalSchema,
+      formData({ ...goalFields, targetAmount: "1e5" }),
+    );
+    const extraDecimals = parseForm(
+      createGoalSchema,
+      formData({ ...goalFields, targetAmount: "10.125" }),
+    );
+
+    assert.equal(scientific.success, false);
+    assert.equal(extraDecimals.success, false);
+    if (!scientific.success) {
+      assert.equal(
+        scientific.fieldErrors.targetAmount,
+        "Target amount must be a valid non-negative number.",
+      );
+    }
+    if (!extraDecimals.success) {
+      assert.equal(
+        extraDecimals.fieldErrors.targetAmount,
+        "Target amount must be a valid non-negative number.",
+      );
+    }
+  });
+
   it("parses a deadline as the same calendar day", () => {
     const parsed = parseForm(createGoalSchema, formData(goalFields));
 

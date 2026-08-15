@@ -1,48 +1,56 @@
 "use server";
 
-import { TransactionType } from "@/lib/generated/prisma/client";
 import { getOwnedGoal, revalidateGoalPaths } from "@/features/goal/actions/shared";
-import type { GoalActionState } from "@/features/goal/actions/types";
 import { createDepositSchema } from "@/features/goal/schemas";
-import { parseForm } from "@/lib/form";
 import { prisma } from "@/lib/db";
+import {
+  fromErrorToActionState,
+  parseForm,
+  toActionState,
+  type ActionState,
+} from "@/lib/form";
+import { TransactionType } from "@/lib/generated/prisma/client";
 
 export async function createDeposit(
-  _prevState: GoalActionState,
+  _prevState: ActionState,
   formData: FormData,
-): Promise<GoalActionState> {
-  const parsed = parseForm(createDepositSchema, formData);
-  if (!parsed.success) {
-    return { error: parsed.error, fieldErrors: parsed.fieldErrors };
-  }
+): Promise<ActionState> {
+  try {
+    const parsed = parseForm(createDepositSchema, formData);
+    if (!parsed.success) {
+      return toActionState("ERROR", parsed.error, parsed.fieldErrors);
+    }
 
-  const { goalId, amount, note, date } = parsed.data;
-  const { goal } = await getOwnedGoal(goalId);
-  if (!goal) {
-    return { error: "Goal not found." };
-  }
+    const { goalId, amount, note, date } = parsed.data;
+    const { goal } = await getOwnedGoal(goalId);
+    if (!goal) {
+      return toActionState("ERROR", "Goal not found.");
+    }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.transaction.create({
-      data: {
-        amount,
-        type: TransactionType.DEPOSIT,
-        note: note || null,
-        createdAt: date,
-        goalId,
-      },
-    });
-
-    await tx.goal.update({
-      where: { id: goalId },
-      data: {
-        currentAmount: {
-          increment: amount,
+    await prisma.$transaction(async (tx) => {
+      await tx.transaction.create({
+        data: {
+          amount,
+          type: TransactionType.DEPOSIT,
+          note: note || null,
+          createdAt: date,
+          goalId,
         },
-      },
-    });
-  });
+      });
 
-  revalidateGoalPaths(goalId);
-  return { success: true };
+      await tx.goal.update({
+        where: { id: goalId },
+        data: {
+          currentAmount: {
+            increment: amount,
+          },
+        },
+      });
+    });
+
+    revalidateGoalPaths(goalId);
+    return toActionState("SUCCESS", "Deposit saved");
+  } catch (error) {
+    return fromErrorToActionState(error);
+  }
 }

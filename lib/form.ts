@@ -1,5 +1,47 @@
 import { z } from "zod";
 
+export type ActionState = {
+  status: "SUCCESS" | "ERROR";
+  message: string;
+  fieldErrors?: Record<string, string>;
+  timestamp: number;
+};
+
+export const EMPTY_ACTION_STATE: ActionState = {
+  status: "SUCCESS",
+  message: "",
+  timestamp: 0,
+};
+
+export function toActionState(
+  status: ActionState["status"],
+  message: string,
+  fieldErrors?: Record<string, string>,
+): ActionState {
+  return {
+    status,
+    message,
+    fieldErrors,
+    timestamp: Date.now(),
+  };
+}
+
+export function fromErrorToActionState(error: unknown): ActionState {
+  if (error instanceof z.ZodError) {
+    return toActionState(
+      "ERROR",
+      error.issues[0]?.message ?? "Please check the form and try again.",
+      fieldErrors(error),
+    );
+  }
+
+  if (error instanceof Error) {
+    return toActionState("ERROR", error.message);
+  }
+
+  return toActionState("ERROR", "An unknown error occurred");
+}
+
 export function formValues(formData: FormData): Record<string, string> {
   const values: Record<string, string> = {};
 

@@ -1,16 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useId, useMemo, useState } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, PlusIcon } from "lucide-react";
+import { useActionState, useId, useMemo, useState } from "react";
+import { PlusIcon } from "lucide-react";
 
-import { createGoal } from "@/features/goal/actions/add-goal";
-import { updateGoal } from "@/features/goal/actions/update-goal";
-import type { GoalActionState } from "@/features/goal/actions/types";
-import { createGoalSchema, updateGoalSchema } from "@/features/goal/schemas";
+import { DatePicker } from "@/components/date-picker";
 import { FieldError } from "@/components/field-error";
+import { Form } from "@/components/form/form";
+import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -23,11 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -35,21 +27,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { suggestedMonthlySavings } from "@/features/goal/goal-math";
+import { createGoal } from "@/features/goal/actions/add-goal";
+import { updateGoal } from "@/features/goal/actions/update-goal";
 import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/features/goal/constants";
-import { dateOnlyFromStored, formatDateOnly } from "@/utils/date-only";
-import { formatMoney } from "@/utils/money";
+import { suggestedMonthlySavings } from "@/features/goal/goal-math";
+import { createGoalSchema, updateGoalSchema } from "@/features/goal/schemas";
+import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 import {
   clearFieldError,
   dismissAllFieldErrors,
+  EMPTY_ACTION_STATE,
   parseForm,
   shouldShowFormError,
   visibleFieldError,
 } from "@/lib/form";
 import { cn } from "@/lib/utils";
-import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
-
-const initialState: GoalActionState = {};
+import { dateOnlyFromStored } from "@/utils/date-only";
+import { formatMoney } from "@/utils/money";
 
 export type EditableGoal = {
   id: string;
@@ -99,16 +93,10 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
     goal ? String(goal.currentAmount) : "",
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [state, formAction, pending] = useActionState(
+  const [state, formAction] = useActionState(
     isEditing ? updateGoal : createGoal,
-    initialState,
+    EMPTY_ACTION_STATE,
   );
-
-  useEffect(() => {
-    if (state.success) {
-      onSuccess();
-    }
-  }, [state.success, onSuccess]);
 
   const errorFor = (field: string) =>
     visibleFieldError(fieldErrors, state.fieldErrors, field);
@@ -147,10 +135,11 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   }, [targetAmount, startingAmount, deadline]);
 
   return (
-    <form
+    <Form
       action={formAction}
+      actionState={state}
       onSubmit={handleSubmit}
-      noValidate
+      onSuccess={onSuccess}
       className="grid gap-4"
     >
       {goal ? <input type="hidden" name="goalId" value={goal.id} /> : null}
@@ -280,42 +269,19 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
 
         <div className="grid gap-2">
           <Label htmlFor={`${formId}-deadline`}>Deadline</Label>
-          <input
-            type="hidden"
+          <DatePicker
+            id={`${formId}-deadline`}
             name="deadline"
-            value={deadline ? formatDateOnly(deadline) : ""}
+            value={deadline}
+            aria-invalid={Boolean(errorFor("deadline"))}
+            aria-describedby={
+              errorFor("deadline") ? `${formId}-deadline-error` : undefined
+            }
+            onChange={(value) => {
+              setDeadline(value);
+              dismissError("deadline");
+            }}
           />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id={`${formId}-deadline`}
-                type="button"
-                variant="outline"
-                aria-invalid={Boolean(errorFor("deadline"))}
-                aria-describedby={
-                  errorFor("deadline") ? `${formId}-deadline-error` : undefined
-                }
-                className={cn(
-                  "justify-start font-normal",
-                  !deadline && "text-muted-foreground",
-                )}
-              >
-                <CalendarIcon data-icon="inline-start" />
-                {deadline ? format(deadline, "PPP") : "Pick a date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={deadline}
-                onSelect={(value) => {
-                  setDeadline(value);
-                  dismissError("deadline");
-                }}
-                captionLayout="dropdown"
-              />
-            </PopoverContent>
-          </Popover>
           <FieldError
             id={`${formId}-deadline-error`}
             message={errorFor("deadline")}
@@ -364,24 +330,23 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
           : `Suggested savings: ${formatMoney(monthlyPreview, currency)} / month to reach this goal on time.`}
       </p>
 
-      {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
+      {shouldShowFormError(
+        state.status === "ERROR" ? state.message : undefined,
+        fieldErrors,
+        state.fieldErrors,
+      ) ? (
         <p className="text-destructive text-sm" role="alert">
-          {state.error}
+          {state.message}
         </p>
       ) : null}
 
       <DialogFooter>
-        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-          {pending
-            ? isEditing
-              ? "Saving…"
-              : "Creating…"
-            : isEditing
-              ? "Save Changes"
-              : "Create Goal"}
-        </Button>
+        <SubmitButton
+          label={isEditing ? "Save Changes" : "Create Goal"}
+          pendingLabel={isEditing ? "Saving…" : "Creating…"}
+        />
       </DialogFooter>
-    </form>
+    </Form>
   );
 }
 

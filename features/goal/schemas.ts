@@ -15,23 +15,39 @@ function optionalText() {
     .transform((value) => value ?? "");
 }
 
+const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
+
+function parseAmountValue(
+  value: string,
+  ctx: z.RefinementCtx,
+  message: string,
+) {
+  if (/[eE]/.test(value) || !AMOUNT_PATTERN.test(value)) {
+    ctx.addIssue({ code: "custom", message });
+    return z.NEVER;
+  }
+
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount < 0) {
+    ctx.addIssue({ code: "custom", message });
+    return z.NEVER;
+  }
+
+  return amount;
+}
+
 function amountField(label: string) {
   return z
     .string()
     .trim()
     .min(1, `${label} is required.`)
-    .transform((value, ctx) => {
-      const amount = Number(value);
-      if (!Number.isFinite(amount) || amount < 0) {
-        ctx.addIssue({
-          code: "custom",
-          message: `${label} must be a valid non-negative number.`,
-        });
-        return z.NEVER;
-      }
-
-      return amount;
-    });
+    .transform((value, ctx) =>
+      parseAmountValue(
+        value,
+        ctx,
+        `${label} must be a valid non-negative number.`,
+      ),
+    );
 }
 
 const goalFieldsSchema = z.object({
@@ -72,16 +88,11 @@ export const createGoalSchema = goalFieldsSchema
           return 0;
         }
 
-        const amount = Number(value);
-        if (!Number.isFinite(amount) || amount < 0) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Starting amount must be a valid non-negative number.",
-          });
-          return z.NEVER;
-        }
-
-        return amount;
+        return parseAmountValue(
+          value,
+          ctx,
+          "Starting amount must be a valid non-negative number.",
+        );
       }),
   })
   .refine((data) => data.startingAmount <= data.targetAmount, {

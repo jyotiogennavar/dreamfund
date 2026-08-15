@@ -2,22 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getDemoUser } from "@/lib/demo-user";
-import { parseForm } from "@/lib/form";
-import { prisma } from "@/lib/db";
 import { updateSettingsSchema } from "@/features/settings/schemas";
+import { getDemoUser } from "@/lib/demo-user";
+import { prisma } from "@/lib/db";
+import {
+  fromErrorToActionState,
+  parseForm,
+  toActionState,
+  type ActionState,
+} from "@/lib/form";
 import {
   analyticsPath,
   goalsPath,
   homePath,
   settingsPath,
 } from "@/paths";
-
-export type SettingsActionState = {
-  error?: string;
-  fieldErrors?: Record<string, string>;
-  success?: boolean;
-};
 
 function revalidateAppPaths() {
   revalidatePath(homePath());
@@ -27,34 +26,48 @@ function revalidateAppPaths() {
 }
 
 export async function updateSettings(
-  _prevState: SettingsActionState,
+  _prevState: ActionState,
   formData: FormData,
-): Promise<SettingsActionState> {
-  const parsed = parseForm(updateSettingsSchema, formData);
-  if (!parsed.success) {
-    return { error: parsed.error, fieldErrors: parsed.fieldErrors };
+): Promise<ActionState> {
+  try {
+    const parsed = parseForm(updateSettingsSchema, formData);
+    if (!parsed.success) {
+      return toActionState("ERROR", parsed.error, parsed.fieldErrors);
+    }
+
+    const user = await getDemoUser();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: parsed.data,
+    });
+
+    revalidateAppPaths();
+    return toActionState("SUCCESS", "Settings saved");
+  } catch (error) {
+    return fromErrorToActionState(error);
   }
-
-  const user = await getDemoUser();
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: parsed.data,
-  });
-
-  revalidateAppPaths();
-  return { success: true };
 }
 
-export async function clearAllData(): Promise<SettingsActionState> {
-  const user = await getDemoUser();
+export async function clearAllData(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  void prevState;
+  void formData;
 
-  await prisma.goal.deleteMany({
-    where: { userId: user.id },
-  });
+  try {
+    const user = await getDemoUser();
 
-  revalidateAppPaths();
-  return { success: true };
+    await prisma.goal.deleteMany({
+      where: { userId: user.id },
+    });
+
+    revalidateAppPaths();
+    return toActionState("SUCCESS", "All data cleared");
+  } catch (error) {
+    return fromErrorToActionState(error);
+  }
 }
 
 export async function getExportCsv(): Promise<string> {

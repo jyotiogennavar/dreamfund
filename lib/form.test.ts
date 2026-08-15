@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import { z } from "zod";
+
 import {
   clearFieldError,
+  fromErrorToActionState,
   shouldShowFormError,
+  toActionState,
   visibleFieldError,
 } from "./form";
 
@@ -47,5 +51,48 @@ describe("shouldShowFormError", () => {
       ),
       false,
     );
+  });
+});
+
+describe("toActionState", () => {
+  it("sets a new timestamp on every call", () => {
+    const first = toActionState("SUCCESS", "Saved");
+    const second = toActionState("ERROR", "Failed", { name: "Required" });
+
+    assert.equal(first.status, "SUCCESS");
+    assert.equal(first.message, "Saved");
+    assert.equal(second.status, "ERROR");
+    assert.deepEqual(second.fieldErrors, { name: "Required" });
+    assert.ok(second.timestamp >= first.timestamp);
+  });
+});
+
+describe("fromErrorToActionState", () => {
+  it("maps a ZodError to field errors", () => {
+    const parsed = z
+      .object({ name: z.string().min(1, "Name is required.") })
+      .safeParse({ name: "" });
+
+    assert.equal(parsed.success, false);
+    if (parsed.success) {
+      return;
+    }
+
+    const state = fromErrorToActionState(parsed.error);
+    assert.equal(state.status, "ERROR");
+    assert.equal(state.message, "Name is required.");
+    assert.deepEqual(state.fieldErrors, { name: "Name is required." });
+  });
+
+  it("maps an Error to its message", () => {
+    const state = fromErrorToActionState(new Error("Goal not found."));
+    assert.equal(state.status, "ERROR");
+    assert.equal(state.message, "Goal not found.");
+  });
+
+  it("maps an unknown value to a generic message", () => {
+    const state = fromErrorToActionState("nope");
+    assert.equal(state.status, "ERROR");
+    assert.equal(state.message, "An unknown error occurred");
   });
 });

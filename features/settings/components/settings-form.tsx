@@ -1,17 +1,13 @@
 "use client";
 
-import { useState, useActionState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { DownloadIcon, Trash2Icon } from "lucide-react";
 
-import {
-  clearAllData,
-  getExportCsv,
-  updateSettings,
-  type SettingsActionState,
-} from "@/features/settings/actions/settings";
-import { updateSettingsSchema } from "@/features/settings/schemas";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FieldError } from "@/components/field-error";
+import { Form } from "@/components/form/form";
+import { SubmitButton } from "@/components/form/submit-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,14 +28,19 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
+  clearAllData,
+  getExportCsv,
+  updateSettings,
+} from "@/features/settings/actions/settings";
+import { updateSettingsSchema } from "@/features/settings/schemas";
+import {
   dismissAllFieldErrors,
+  EMPTY_ACTION_STATE,
   parseForm,
   shouldShowFormError,
   visibleFieldError,
 } from "@/lib/form";
 import { CURRENCY_OPTIONS } from "@/utils/currency";
-
-const initialState: SettingsActionState = {};
 
 type SettingsUser = {
   name: string | null;
@@ -69,12 +70,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
   );
   const [baselineUser, setBaselineUser] = useState(user);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [state, formAction, pending] = useActionState(
+  const [state, formAction] = useActionState(
     updateSettings,
-    initialState,
+    EMPTY_ACTION_STATE,
   );
   const [exporting, startExport] = useTransition();
-  const [clearing, startClear] = useTransition();
 
   if (
     user.currency !== baselineUser.currency ||
@@ -117,10 +117,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-      <form
+      <Form
         action={formAction}
+        actionState={state}
         onSubmit={handleSubmit}
-        noValidate
         className="flex flex-col gap-6"
       >
         <Card>
@@ -254,21 +254,18 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </CardContent>
         </Card>
 
-        {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
+        {shouldShowFormError(
+          state.status === "ERROR" ? state.message : undefined,
+          fieldErrors,
+          state.fieldErrors,
+        ) ? (
           <p className="text-destructive text-sm" role="alert">
-            {state.error}
-          </p>
-        ) : null}
-        {state.success ? (
-          <p className="text-sm text-primary" role="status">
-            Settings saved.
+            {state.message}
           </p>
         ) : null}
 
-        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-          {pending ? "Saving…" : "Save Settings"}
-        </Button>
-      </form>
+        <SubmitButton label="Save Settings" pendingLabel="Saving…" />
+      </Form>
 
       <Card>
         <CardHeader>
@@ -298,31 +295,20 @@ export function SettingsForm({ user }: SettingsFormProps) {
             <DownloadIcon data-icon="inline-start" />
             {exporting ? "Exporting…" : "Export CSV"}
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={clearing}
-            onClick={() => {
-              const confirmed = window.confirm(
-                "Clear all goals and deposits? This cannot be undone.",
-              );
-              if (!confirmed) {
-                return;
-              }
-
-              startClear(async () => {
-                const result = await clearAllData();
-                if (result.error) {
-                  window.alert(result.error);
-                  return;
-                }
-                router.refresh();
-              });
-            }}
-          >
-            <Trash2Icon data-icon="inline-start" />
-            {clearing ? "Clearing…" : "Clear all data"}
-          </Button>
+          <ConfirmDialog
+            title="Clear all data?"
+            description="Clear all goals and deposits? This cannot be undone."
+            action={clearAllData}
+            confirmLabel="Clear all data"
+            pendingLabel="Clearing…"
+            onSuccess={() => router.refresh()}
+            trigger={
+              <Button type="button" variant="destructive">
+                <Trash2Icon data-icon="inline-start" />
+                Clear all data
+              </Button>
+            }
+          />
         </CardContent>
       </Card>
     </div>

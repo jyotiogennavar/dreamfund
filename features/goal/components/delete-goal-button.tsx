@@ -1,11 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2Icon } from "lucide-react";
 
-import { deleteGoal } from "@/features/goal/actions/delete-goal";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { deleteGoal } from "@/features/goal/actions/delete-goal";
 import { goalsPath } from "@/paths";
 
 type DeleteGoalButtonProps = {
@@ -15,36 +15,28 @@ type DeleteGoalButtonProps = {
 
 export function DeleteGoalButton({ goalId, goalName }: DeleteGoalButtonProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
 
   return (
-    <Button
-      type="button"
-      variant="destructive"
-      size="icon"
-      aria-label={`Delete ${goalName}`}
-      disabled={pending}
-      onClick={() => {
-        const confirmed = window.confirm(
-          `Delete “${goalName}”? This cannot be undone.`,
-        );
-        if (!confirmed) {
-          return;
-        }
-
-        startTransition(async () => {
-          const result = await deleteGoal(goalId);
-          if (result.error) {
-            window.alert(result.error);
-            return;
-          }
-
-          router.push(goalsPath());
-          router.refresh();
-        });
+    <ConfirmDialog
+      title={`Delete “${goalName}”?`}
+      description="This cannot be undone."
+      action={deleteGoal.bind(null, goalId)}
+      confirmLabel="Delete"
+      pendingLabel="Deleting…"
+      onSuccess={() => {
+        router.push(goalsPath());
+        router.refresh();
       }}
-    >
-      <Trash2Icon />
-    </Button>
+      trigger={
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon"
+          aria-label={`Delete ${goalName}`}
+        >
+          <Trash2Icon />
+        </Button>
+      }
+    />
   );
 }

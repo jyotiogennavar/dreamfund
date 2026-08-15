@@ -52,7 +52,7 @@ export function RecentTransactions({
           <CardHeader className="sr-only">
             <CardTitle>Recent deposits</CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>

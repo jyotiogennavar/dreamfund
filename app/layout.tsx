@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { AppHeader } from "@/app/_navigation/app-header";
 import { AppSidebar } from "@/app/_navigation/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { PageSpinner } from "@/components/ui/spinner";
 
 const merriweatherHeading = Merriweather({
@@ -62,6 +63,7 @@ export default function RootLayout({
               </div>
             </SidebarProvider>
           </TooltipProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

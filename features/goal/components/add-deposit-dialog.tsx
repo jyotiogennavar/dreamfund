@@ -1,15 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, PlusIcon } from "lucide-react";
+import { useActionState, useId, useState } from "react";
+import { PlusIcon } from "lucide-react";
 
-import { createDeposit } from "@/features/goal/actions/add-deposit";
-import type { GoalActionState } from "@/features/goal/actions/types";
-import { createDepositSchema } from "@/features/goal/schemas";
+import { DatePicker } from "@/components/date-picker";
 import { FieldError } from "@/components/field-error";
+import { Form } from "@/components/form/form";
+import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -22,11 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -34,15 +27,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createDeposit } from "@/features/goal/actions/add-deposit";
+import { createDepositSchema } from "@/features/goal/schemas";
 import {
+  clearFieldError,
   dismissAllFieldErrors,
+  EMPTY_ACTION_STATE,
   parseForm,
   shouldShowFormError,
   visibleFieldError,
 } from "@/lib/form";
-import { cn } from "@/lib/utils";
-
-const initialState: GoalActionState = {};
 
 type GoalOption = {
   id: string;
@@ -66,25 +60,27 @@ function AddDepositForm({
   defaultGoalId,
   onSuccess,
 }: AddDepositFormProps) {
+  const formId = useId();
   const [goalId, setGoalId] = useState(defaultGoalId ?? goals[0]?.id ?? "");
   const [date, setDate] = useState<Date>(() => new Date());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [state, formAction, pending] = useActionState(
+  const [state, formAction] = useActionState(
     createDeposit,
-    initialState,
+    EMPTY_ACTION_STATE,
   );
-
-  useEffect(() => {
-    if (state.success) {
-      onSuccess();
-    }
-  }, [state.success, onSuccess]);
 
   const errorFor = (field: string) =>
     visibleFieldError(fieldErrors, state.fieldErrors, field);
 
+  function dismissError(field: string) {
+    setFieldErrors((current) => clearFieldError(current, field));
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    const parsed = parseForm(createDepositSchema, new FormData(event.currentTarget));
+    const parsed = parseForm(
+      createDepositSchema,
+      new FormData(event.currentTarget),
+    );
     if (!parsed.success) {
       event.preventDefault();
       setFieldErrors(parsed.fieldErrors);
@@ -97,19 +93,30 @@ function AddDepositForm({
   }
 
   return (
-    <form
+    <Form
       action={formAction}
+      actionState={state}
       onSubmit={handleSubmit}
-      noValidate
+      onSuccess={onSuccess}
       className="grid gap-4"
     >
       <div className="grid gap-2">
-        <Label>Goal</Label>
+        <Label htmlFor={`${formId}-goalId`}>Goal</Label>
         <input type="hidden" name="goalId" value={goalId} />
-        <Select value={goalId} onValueChange={setGoalId}>
+        <Select
+          value={goalId}
+          onValueChange={(value) => {
+            setGoalId(value);
+            dismissError("goalId");
+          }}
+        >
           <SelectTrigger
+            id={`${formId}-goalId`}
             className="w-full"
             aria-invalid={Boolean(errorFor("goalId"))}
+            aria-describedby={
+              errorFor("goalId") ? `${formId}-goalId-error` : undefined
+            }
           >
             <SelectValue placeholder="Select a goal" />
           </SelectTrigger>
@@ -121,74 +128,78 @@ function AddDepositForm({
             ))}
           </SelectContent>
         </Select>
-        <FieldError id="goalId-error" message={errorFor("goalId")} />
+        <FieldError
+          id={`${formId}-goalId-error`}
+          message={errorFor("goalId")}
+        />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="amount">Amount</Label>
+        <Label htmlFor={`${formId}-amount`}>Amount</Label>
         <Input
-          id="amount"
+          id={`${formId}-amount`}
           name="amount"
           type="number"
           min="1"
           step="1"
           inputMode="decimal"
           aria-invalid={Boolean(errorFor("amount"))}
-          aria-describedby={errorFor("amount") ? "amount-error" : undefined}
+          aria-describedby={
+            errorFor("amount") ? `${formId}-amount-error` : undefined
+          }
+          onChange={() => dismissError("amount")}
         />
-        <FieldError id="amount-error" message={errorFor("amount")} />
+        <FieldError
+          id={`${formId}-amount-error`}
+          message={errorFor("amount")}
+        />
       </div>
 
       <div className="grid gap-2">
-        <Label>Date</Label>
-        <input type="hidden" name="date" value={format(date, "yyyy-MM-dd")} />
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              aria-invalid={Boolean(errorFor("date"))}
-              className={cn("justify-start font-normal")}
-            >
-              <CalendarIcon data-icon="inline-start" />
-              {format(date, "PPP")}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(value) => value && setDate(value)}
-              captionLayout="dropdown"
-            />
-          </PopoverContent>
-        </Popover>
+        <Label htmlFor={`${formId}-date`}>Date</Label>
+        <DatePicker
+          id={`${formId}-date`}
+          name="date"
+          value={date}
+          aria-invalid={Boolean(errorFor("date"))}
+          aria-describedby={
+            errorFor("date") ? `${formId}-date-error` : undefined
+          }
+          onChange={(value) => {
+            if (value) {
+              setDate(value);
+            }
+            dismissError("date");
+          }}
+        />
         <p className="text-muted-foreground text-xs">Defaults to today.</p>
-        <FieldError id="date-error" message={errorFor("date")} />
+        <FieldError id={`${formId}-date-error`} message={errorFor("date")} />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="note">Note</Label>
+        <Label htmlFor={`${formId}-note`}>Note</Label>
         <Textarea
-          id="note"
+          id={`${formId}-note`}
           name="note"
           placeholder="Optional note"
           rows={2}
         />
       </div>
 
-      {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
+      {shouldShowFormError(
+        state.status === "ERROR" ? state.message : undefined,
+        fieldErrors,
+        state.fieldErrors,
+      ) ? (
         <p className="text-destructive text-sm" role="alert">
-          {state.error}
+          {state.message}
         </p>
       ) : null}
 
       <DialogFooter>
-        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-          {pending ? "Saving…" : "Save Deposit"}
-        </Button>
+        <SubmitButton label="Save Deposit" pendingLabel="Saving…" />
       </DialogFooter>
-    </form>
+    </Form>
   );
 }
 
