@@ -8,8 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { goalProgressPercent } from "@/features/goal/goal-math";
-import { formatMoney, toNumber } from "@/utils/money";
+import {
+  formatGoalRemaining,
+  getGoalStatus,
+  goalProgressPercent,
+} from "@/features/goal/goal-math";
+import { formatMoney } from "@/utils/money";
 import { goalPath } from "@/paths";
 
 type GoalCardProps = {
@@ -25,17 +29,19 @@ type GoalCardProps = {
 
 export function GoalCard({ goal, currency }: GoalCardProps) {
   const progress = goalProgressPercent(goal.currentAmount, goal.targetAmount);
-  const isComplete =
-    toNumber(goal.currentAmount) >= toNumber(goal.targetAmount);
+  const status = getGoalStatus(goal.currentAmount, goal.targetAmount);
 
   return (
-    <Link href={goalPath(goal.id)}>
-      <Card className="h-full max-w-md transition-shadow hover:shadow-lg">
+    <Link
+      href={goalPath(goal.id)}
+      className="block h-full w-full max-w-md rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
+      <Card className="h-full transition-shadow hover:shadow-lg">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle>{goal.name}</CardTitle>
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-              {isComplete ? "Completed" : "Active"}
+              {status}
             </span>
           </div>
           {goal.description ? (
@@ -57,14 +63,11 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
 
           <Progress value={progress} aria-label={`${goal.name} progress`} />
           <p className="text-muted-foreground text-xs">
-            {formatMoney(
-              Math.max(
-                0,
-                toNumber(goal.targetAmount) - toNumber(goal.currentAmount),
-              ),
+            {formatGoalRemaining(
+              goal.currentAmount,
+              goal.targetAmount,
               currency,
             )}
-            remaining
           </p>
         </CardContent>
       </Card>

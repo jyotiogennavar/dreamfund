@@ -1,27 +1,10 @@
+import { getGoalStatus, type GoalStatus } from "@/features/goal/goal-math";
 import { toNumber } from "@/utils/money";
 import type { GoalPriority } from "@/lib/generated/prisma/enums";
 
 type Amount = number | string | { toString(): string };
 
-export type GoalStatus = "Completed" | "In Progress" | "Not Started";
-
-export function getGoalStatus(
-  currentAmount: Amount,
-  targetAmount: Amount,
-): GoalStatus {
-  const current = toNumber(currentAmount);
-  const target = toNumber(targetAmount);
-
-  if (current <= 0) {
-    return "Not Started";
-  }
-
-  if (current >= target && target > 0) {
-    return "Completed";
-  }
-
-  return "In Progress";
-}
+export { getGoalStatus, type GoalStatus };
 
 export function buildCompletionChartData(
   goals: { currentAmount: Amount; targetAmount: Amount }[],
@@ -36,18 +19,8 @@ export function buildCompletionChartData(
     counts[getGoalStatus(goal.currentAmount, goal.targetAmount)] += 1;
   }
 
-  const totalTarget = goals.reduce(
-    (sum, goal) => sum + toNumber(goal.targetAmount),
-    0,
-  );
-  const totalCurrent = goals.reduce(
-    (sum, goal) => sum + toNumber(goal.currentAmount),
-    0,
-  );
-
   return {
-    overallPercent:
-      totalTarget > 0 ? Math.min(100, Math.round((totalCurrent / totalTarget) * 100)) : 0,
+    overallPercent: overallTargetPercent(goals),
     segments: [
       { name: "Completed", value: counts.Completed, fill: "var(--chart-1)" },
       { name: "In Progress", value: counts["In Progress"], fill: "var(--chart-2)" },
@@ -74,4 +47,34 @@ export function buildPriorityChartData(
     { name: "Medium", value: counts.MEDIUM, fill: "var(--chart-2)" },
     { name: "Low", value: counts.LOW, fill: "var(--chart-3)" },
   ].filter((segment) => segment.value > 0);
+}
+
+/** Share of target amount saved; 100% only when every valid target is met. */
+function overallTargetPercent(
+  goals: { currentAmount: Amount; targetAmount: Amount }[],
+): number {
+  let totalTarget = 0;
+  let totalCapped = 0;
+
+  for (const goal of goals) {
+    const target = toNumber(goal.targetAmount);
+    if (target <= 0) {
+      continue;
+    }
+
+    const current = Math.max(0, toNumber(goal.currentAmount));
+    totalTarget += target;
+    totalCapped += Math.min(current, target);
+  }
+
+  if (totalTarget <= 0 || totalCapped <= 0) {
+    return 0;
+  }
+
+  if (totalCapped >= totalTarget) {
+    return 100;
+  }
+
+  const rounded = Math.round((totalCapped / totalTarget) * 100);
+  return Math.min(99, Math.max(1, rounded));
 }

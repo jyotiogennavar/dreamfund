@@ -40,17 +40,17 @@ export function RecentTransactions({
   return (
     <section className="flex flex-col gap-4">
       <h2 className="font-heading text-2xl font-semibold tracking-tight">
-        Recent Transactions
+        Recent deposits
       </h2>
       {transactions.length === 0 ? (
         <Placeholder
-          label="No transactions yet"
+          label="No deposits yet"
           description="Deposits will show up here once you start saving."
         />
       ) : (
         <Card>
           <CardHeader className="sr-only">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Recent deposits</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <Table>

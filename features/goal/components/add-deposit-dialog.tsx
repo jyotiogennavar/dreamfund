@@ -6,6 +6,8 @@ import { CalendarIcon, PlusIcon } from "lucide-react";
 
 import { createDeposit } from "@/features/goal/actions/add-deposit";
 import type { GoalActionState } from "@/features/goal/actions/types";
+import { createDepositSchema } from "@/features/goal/schemas";
+import { FieldError } from "@/components/field-error";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -32,6 +34,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  dismissAllFieldErrors,
+  parseForm,
+  shouldShowFormError,
+  visibleFieldError,
+} from "@/lib/form";
 import { cn } from "@/lib/utils";
 
 const initialState: GoalActionState = {};
@@ -60,6 +68,7 @@ function AddDepositForm({
 }: AddDepositFormProps) {
   const [goalId, setGoalId] = useState(defaultGoalId ?? goals[0]?.id ?? "");
   const [date, setDate] = useState<Date>(() => new Date());
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [state, formAction, pending] = useActionState(
     createDeposit,
     initialState,
@@ -71,13 +80,37 @@ function AddDepositForm({
     }
   }, [state.success, onSuccess]);
 
+  const errorFor = (field: string) =>
+    visibleFieldError(fieldErrors, state.fieldErrors, field);
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const parsed = parseForm(createDepositSchema, new FormData(event.currentTarget));
+    if (!parsed.success) {
+      event.preventDefault();
+      setFieldErrors(parsed.fieldErrors);
+      return;
+    }
+
+    setFieldErrors((current) =>
+      dismissAllFieldErrors(current, state.fieldErrors),
+    );
+  }
+
   return (
-    <form action={formAction} className="grid gap-4">
+    <form
+      action={formAction}
+      onSubmit={handleSubmit}
+      noValidate
+      className="grid gap-4"
+    >
       <div className="grid gap-2">
         <Label>Goal</Label>
         <input type="hidden" name="goalId" value={goalId} />
         <Select value={goalId} onValueChange={setGoalId}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger
+            className="w-full"
+            aria-invalid={Boolean(errorFor("goalId"))}
+          >
             <SelectValue placeholder="Select a goal" />
           </SelectTrigger>
           <SelectContent>
@@ -88,6 +121,7 @@ function AddDepositForm({
             ))}
           </SelectContent>
         </Select>
+        <FieldError id="goalId-error" message={errorFor("goalId")} />
       </div>
 
       <div className="grid gap-2">
@@ -99,8 +133,10 @@ function AddDepositForm({
           min="1"
           step="1"
           inputMode="decimal"
-          required
+          aria-invalid={Boolean(errorFor("amount"))}
+          aria-describedby={errorFor("amount") ? "amount-error" : undefined}
         />
+        <FieldError id="amount-error" message={errorFor("amount")} />
       </div>
 
       <div className="grid gap-2">
@@ -111,6 +147,7 @@ function AddDepositForm({
             <Button
               type="button"
               variant="outline"
+              aria-invalid={Boolean(errorFor("date"))}
               className={cn("justify-start font-normal")}
             >
               <CalendarIcon data-icon="inline-start" />
@@ -127,6 +164,7 @@ function AddDepositForm({
           </PopoverContent>
         </Popover>
         <p className="text-muted-foreground text-xs">Defaults to today.</p>
+        <FieldError id="date-error" message={errorFor("date")} />
       </div>
 
       <div className="grid gap-2">
@@ -139,7 +177,7 @@ function AddDepositForm({
         />
       </div>
 
-      {state.error ? (
+      {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
         <p className="text-destructive text-sm" role="alert">
           {state.error}
         </p>

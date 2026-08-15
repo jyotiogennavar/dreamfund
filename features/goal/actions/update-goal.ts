@@ -1,24 +1,22 @@
 "use server";
 
-import { getOwnedGoal, parseGoalFields, revalidateGoalPaths } from "@/features/goal/actions/shared";
+import { getOwnedGoal, revalidateGoalPaths } from "@/features/goal/actions/shared";
 import type { GoalActionState } from "@/features/goal/actions/types";
+import { updateGoalSchema } from "@/features/goal/schemas";
+import { parseForm } from "@/lib/form";
 import { prisma } from "@/lib/db";
 
 export async function updateGoal(
   _prevState: GoalActionState,
   formData: FormData,
 ): Promise<GoalActionState> {
-  const goalId = String(formData.get("goalId") ?? "").trim();
-  if (!goalId) {
-    return { error: "Goal is required." };
+  const parsed = parseForm(updateGoalSchema, formData);
+  if (!parsed.success) {
+    return { error: parsed.error, fieldErrors: parsed.fieldErrors };
   }
 
-  const fields = parseGoalFields(formData);
-  if ("error" in fields) {
-    return { error: fields.error };
-  }
-
-  const { goal } = await getOwnedGoal(goalId);
+  const fields = parsed.data;
+  const { goal } = await getOwnedGoal(fields.goalId);
   if (!goal) {
     return { error: "Goal not found." };
   }
@@ -26,21 +24,25 @@ export async function updateGoal(
   if (Number(goal.currentAmount) > fields.targetAmount) {
     return {
       error: "Target amount cannot be less than the amount already saved.",
+      fieldErrors: {
+        targetAmount:
+          "Target amount cannot be less than the amount already saved.",
+      },
     };
   }
 
   await prisma.goal.update({
-    where: { id: goalId },
+    where: { id: fields.goalId },
     data: {
       name: fields.name,
       description: fields.description || null,
       targetAmount: fields.targetAmount,
-      targetDate: fields.targetDate,
+      targetDate: fields.deadline,
       category: fields.category,
       priority: fields.priority,
     },
   });
 
-  revalidateGoalPaths(goalId);
+  revalidateGoalPaths(fields.goalId);
   return { success: true };
 }

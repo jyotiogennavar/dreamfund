@@ -30,7 +30,7 @@ export function CompletionChart({
       <CardHeader>
         <CardTitle>Goal Completion</CardTitle>
         <CardDescription>
-          Overall progress across all savings targets.
+          Center is share of target amount saved. Slices count goals by status.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -73,10 +73,17 @@ export function CompletionChart({
                           >
                             <tspan
                               x={viewBox.cx}
-                              y={viewBox.cy}
+                              y={(viewBox.cy ?? 0) - 6}
                               className="fill-foreground font-heading text-3xl font-semibold"
                             >
                               {overallPercent}%
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy ?? 0) + 18}
+                              className="fill-muted-foreground text-xs"
+                            >
+                              of target
                             </tspan>
                           </text>
                         );

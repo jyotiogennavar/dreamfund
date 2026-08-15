@@ -10,7 +10,12 @@ import {
 export async function getAnalyticsData() {
   const user = await getDemoUser();
 
-  const [goals, deposits] = await Promise.all([
+  const depositWhere = {
+    type: TransactionType.DEPOSIT,
+    goal: { userId: user.id },
+  };
+
+  const [goals, deposits, recentDeposits] = await Promise.all([
     prisma.goal.findMany({
       where: { userId: user.id },
       select: {
@@ -23,11 +28,16 @@ export async function getAnalyticsData() {
       },
     }),
     prisma.transaction.findMany({
-      where: {
-        type: TransactionType.DEPOSIT,
-        goal: { userId: user.id },
+      where: depositWhere,
+      select: {
+        amount: true,
+        createdAt: true,
       },
+    }),
+    prisma.transaction.findMany({
+      where: depositWhere,
       orderBy: { createdAt: "desc" },
+      take: 20,
       select: {
         id: true,
         amount: true,
@@ -46,7 +56,7 @@ export async function getAnalyticsData() {
   return {
     currency: user.currency,
     goals,
-    transactions: deposits.slice(0, 20),
+    transactions: recentDeposits,
     stats: {
       currency: user.currency,
       totalSaved: totalSaved(goals),

@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useId, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 
 import { createGoal } from "@/features/goal/actions/add-goal";
 import { updateGoal } from "@/features/goal/actions/update-goal";
 import type { GoalActionState } from "@/features/goal/actions/types";
+import { createGoalSchema, updateGoalSchema } from "@/features/goal/schemas";
+import { FieldError } from "@/components/field-error";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -35,7 +37,15 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { suggestedMonthlySavings } from "@/features/goal/goal-math";
 import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/features/goal/constants";
+import { dateOnlyFromStored, formatDateOnly } from "@/utils/date-only";
 import { formatMoney } from "@/utils/money";
+import {
+  clearFieldError,
+  dismissAllFieldErrors,
+  parseForm,
+  shouldShowFormError,
+  visibleFieldError,
+} from "@/lib/form";
 import { cn } from "@/lib/utils";
 import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 
@@ -66,6 +76,7 @@ type CreateGoalFormProps = {
 
 function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   const isEditing = Boolean(goal);
+  const formId = useId();
   const [name, setName] = useState(goal?.name ?? "");
   const [description, setDescription] = useState(goal?.description ?? "");
   const [priority, setPriority] = useState<GoalPriority>(
@@ -74,15 +85,20 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   const [category, setCategory] = useState<GoalCategory>(
     goal?.category ?? GoalCategory.OTHER,
   );
-  const [deadline, setDeadline] = useState<Date | undefined>(() =>
-    goal?.targetDate ? new Date(goal.targetDate) : undefined,
-  );
+  const [deadline, setDeadline] = useState<Date | undefined>(() => {
+    if (!goal?.targetDate) {
+      return undefined;
+    }
+
+    return dateOnlyFromStored(goal.targetDate) ?? undefined;
+  });
   const [targetAmount, setTargetAmount] = useState(
     goal ? String(goal.targetAmount) : "",
   );
   const [startingAmount, setStartingAmount] = useState(
     goal ? String(goal.currentAmount) : "",
   );
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [state, formAction, pending] = useActionState(
     isEditing ? updateGoal : createGoal,
     initialState,
@@ -93,6 +109,27 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       onSuccess();
     }
   }, [state.success, onSuccess]);
+
+  const errorFor = (field: string) =>
+    visibleFieldError(fieldErrors, state.fieldErrors, field);
+
+  function dismissError(field: string) {
+    setFieldErrors((current) => clearFieldError(current, field));
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const schema = isEditing ? updateGoalSchema : createGoalSchema;
+    const parsed = parseForm(schema, new FormData(event.currentTarget));
+    if (!parsed.success) {
+      event.preventDefault();
+      setFieldErrors(parsed.fieldErrors);
+      return;
+    }
+
+    setFieldErrors((current) =>
+      dismissAllFieldErrors(current, state.fieldErrors),
+    );
+  }
 
   const monthlyPreview = useMemo(() => {
     const target = Number(targetAmount);
@@ -110,25 +147,37 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   }, [targetAmount, startingAmount, deadline]);
 
   return (
-    <form action={formAction} className="grid gap-4">
+    <form
+      action={formAction}
+      onSubmit={handleSubmit}
+      noValidate
+      className="grid gap-4"
+    >
       {goal ? <input type="hidden" name="goalId" value={goal.id} /> : null}
 
       <div className="grid gap-2">
-        <Label htmlFor="name">Goal Name</Label>
+        <Label htmlFor={`${formId}-name`}>Goal Name</Label>
         <Input
-          id="name"
+          id={`${formId}-name`}
           name="name"
           placeholder="e.g. Japan Trip"
-          required
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          aria-invalid={Boolean(errorFor("name"))}
+          aria-describedby={
+            errorFor("name") ? `${formId}-name-error` : undefined
+          }
+          onChange={(event) => {
+            setName(event.target.value);
+            dismissError("name");
+          }}
         />
+        <FieldError id={`${formId}-name-error`} message={errorFor("name")} />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor={`${formId}-description`}>Description</Label>
         <Textarea
-          id="description"
+          id={`${formId}-description`}
           name="description"
           placeholder="What are you saving for?"
           rows={2}
@@ -139,31 +188,56 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
 
       <div className={cn("grid gap-4", !isEditing && "sm:grid-cols-2")}>
         <div className="grid gap-2">
-          <Label htmlFor="targetAmount">Target Amount</Label>
+          <Label htmlFor={`${formId}-targetAmount`}>Target Amount</Label>
           <Input
-            id="targetAmount"
+            id={`${formId}-targetAmount`}
             name="targetAmount"
             type="number"
             min="1"
             step="1"
             inputMode="decimal"
-            required
             value={targetAmount}
-            onChange={(event) => setTargetAmount(event.target.value)}
+            aria-invalid={Boolean(errorFor("targetAmount"))}
+            aria-describedby={
+              errorFor("targetAmount")
+                ? `${formId}-targetAmount-error`
+                : undefined
+            }
+            onChange={(event) => {
+              setTargetAmount(event.target.value);
+              dismissError("targetAmount");
+            }}
+          />
+          <FieldError
+            id={`${formId}-targetAmount-error`}
+            message={errorFor("targetAmount")}
           />
         </div>
         {!isEditing ? (
           <div className="grid gap-2">
-            <Label htmlFor="startingAmount">Starting Amount</Label>
+            <Label htmlFor={`${formId}-startingAmount`}>Starting Amount</Label>
             <Input
-              id="startingAmount"
+              id={`${formId}-startingAmount`}
               name="startingAmount"
               type="number"
               min="0"
               step="1"
               inputMode="decimal"
               value={startingAmount}
-              onChange={(event) => setStartingAmount(event.target.value)}
+              aria-invalid={Boolean(errorFor("startingAmount"))}
+              aria-describedby={
+                errorFor("startingAmount")
+                  ? `${formId}-startingAmount-error`
+                  : undefined
+              }
+              onChange={(event) => {
+                setStartingAmount(event.target.value);
+                dismissError("startingAmount");
+              }}
+            />
+            <FieldError
+              id={`${formId}-startingAmount-error`}
+              message={errorFor("startingAmount")}
             />
           </div>
         ) : null}
@@ -171,13 +245,23 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <Label>Priority</Label>
+          <Label htmlFor={`${formId}-priority`}>Priority</Label>
           <input type="hidden" name="priority" value={priority} />
           <Select
             value={priority}
-            onValueChange={(value) => setPriority(value as GoalPriority)}
+            onValueChange={(value) => {
+              setPriority(value as GoalPriority);
+              dismissError("priority");
+            }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger
+              id={`${formId}-priority`}
+              className="w-full"
+              aria-invalid={Boolean(errorFor("priority"))}
+              aria-describedby={
+                errorFor("priority") ? `${formId}-priority-error` : undefined
+              }
+            >
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent>
@@ -188,20 +272,29 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
               ))}
             </SelectContent>
           </Select>
+          <FieldError
+            id={`${formId}-priority-error`}
+            message={errorFor("priority")}
+          />
         </div>
 
         <div className="grid gap-2">
-          <Label>Deadline</Label>
+          <Label htmlFor={`${formId}-deadline`}>Deadline</Label>
           <input
             type="hidden"
             name="deadline"
-            value={deadline ? format(deadline, "yyyy-MM-dd") : ""}
+            value={deadline ? formatDateOnly(deadline) : ""}
           />
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                id={`${formId}-deadline`}
                 type="button"
                 variant="outline"
+                aria-invalid={Boolean(errorFor("deadline"))}
+                aria-describedby={
+                  errorFor("deadline") ? `${formId}-deadline-error` : undefined
+                }
                 className={cn(
                   "justify-start font-normal",
                   !deadline && "text-muted-foreground",
@@ -215,30 +308,54 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
               <Calendar
                 mode="single"
                 selected={deadline}
-                onSelect={setDeadline}
+                onSelect={(value) => {
+                  setDeadline(value);
+                  dismissError("deadline");
+                }}
                 captionLayout="dropdown"
               />
             </PopoverContent>
           </Popover>
+          <FieldError
+            id={`${formId}-deadline-error`}
+            message={errorFor("deadline")}
+          />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <Label>Category</Label>
+        <Label id={`${formId}-category-label`}>Category</Label>
         <input type="hidden" name="category" value={category} />
-        <div className="flex flex-wrap gap-2">
+        <div
+          role="radiogroup"
+          aria-labelledby={`${formId}-category-label`}
+          aria-invalid={Boolean(errorFor("category"))}
+          aria-describedby={
+            errorFor("category") ? `${formId}-category-error` : undefined
+          }
+          className="flex flex-wrap gap-2"
+        >
           {GOAL_CATEGORIES.map((item) => (
             <Button
               key={item.value}
               type="button"
               size="sm"
+              role="radio"
+              aria-checked={category === item.value}
               variant={category === item.value ? "default" : "outline"}
-              onClick={() => setCategory(item.value)}
+              onClick={() => {
+                setCategory(item.value);
+                dismissError("category");
+              }}
             >
               {item.label}
             </Button>
           ))}
         </div>
+        <FieldError
+          id={`${formId}-category-error`}
+          message={errorFor("category")}
+        />
       </div>
 
       <p className="text-muted-foreground text-sm">
@@ -247,7 +364,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
           : `Suggested savings: ${formatMoney(monthlyPreview, currency)} / month to reach this goal on time.`}
       </p>
 
-      {state.error ? (
+      {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
         <p className="text-destructive text-sm" role="alert">
           {state.error}
         </p>

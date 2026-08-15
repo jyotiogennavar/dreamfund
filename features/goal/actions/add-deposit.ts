@@ -1,39 +1,22 @@
 "use server";
 
 import { TransactionType } from "@/lib/generated/prisma/client";
-import { getOwnedGoal, parseAmount, revalidateGoalPaths } from "@/features/goal/actions/shared";
+import { getOwnedGoal, revalidateGoalPaths } from "@/features/goal/actions/shared";
 import type { GoalActionState } from "@/features/goal/actions/types";
+import { createDepositSchema } from "@/features/goal/schemas";
+import { parseForm } from "@/lib/form";
 import { prisma } from "@/lib/db";
 
 export async function createDeposit(
   _prevState: GoalActionState,
   formData: FormData,
 ): Promise<GoalActionState> {
-  const goalId = String(formData.get("goalId") ?? "").trim();
-  const note = String(formData.get("note") ?? "").trim();
-  const dateValue = String(formData.get("date") ?? "").trim();
-
-  if (!goalId) {
-    return { error: "Select a goal." };
+  const parsed = parseForm(createDepositSchema, formData);
+  if (!parsed.success) {
+    return { error: parsed.error, fieldErrors: parsed.fieldErrors };
   }
 
-  const amountResult = parseAmount(formData.get("amount"), "Amount");
-  if ("error" in amountResult) {
-    return { error: amountResult.error };
-  }
-
-  if (amountResult.amount <= 0) {
-    return { error: "Amount must be greater than zero." };
-  }
-
-  let createdAt = new Date();
-  if (dateValue) {
-    createdAt = new Date(`${dateValue}T12:00:00`);
-    if (Number.isNaN(createdAt.getTime())) {
-      return { error: "Date is invalid." };
-    }
-  }
-
+  const { goalId, amount, note, date } = parsed.data;
   const { goal } = await getOwnedGoal(goalId);
   if (!goal) {
     return { error: "Goal not found." };
@@ -42,10 +25,10 @@ export async function createDeposit(
   await prisma.$transaction(async (tx) => {
     await tx.transaction.create({
       data: {
-        amount: amountResult.amount,
+        amount,
         type: TransactionType.DEPOSIT,
         note: note || null,
-        createdAt,
+        createdAt: date,
         goalId,
       },
     });
@@ -54,7 +37,7 @@ export async function createDeposit(
       where: { id: goalId },
       data: {
         currentAmount: {
-          increment: amountResult.amount,
+          increment: amount,
         },
       },
     });

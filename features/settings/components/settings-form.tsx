@@ -10,6 +10,8 @@ import {
   updateSettings,
   type SettingsActionState,
 } from "@/features/settings/actions/settings";
+import { updateSettingsSchema } from "@/features/settings/schemas";
+import { FieldError } from "@/components/field-error";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +31,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  dismissAllFieldErrors,
+  parseForm,
+  shouldShowFormError,
+  visibleFieldError,
+} from "@/lib/form";
 import { CURRENCY_OPTIONS } from "@/utils/currency";
 
 const initialState: SettingsActionState = {};
@@ -60,6 +68,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
     user.notifyDepositReminder,
   );
   const [baselineUser, setBaselineUser] = useState(user);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [state, formAction, pending] = useActionState(
     updateSettings,
     initialState,
@@ -87,9 +96,33 @@ export function SettingsForm({ user }: SettingsFormProps) {
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 
+  const errorFor = (field: string) =>
+    visibleFieldError(fieldErrors, state.fieldErrors, field);
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const parsed = parseForm(
+      updateSettingsSchema,
+      new FormData(event.currentTarget),
+    );
+    if (!parsed.success) {
+      event.preventDefault();
+      setFieldErrors(parsed.fieldErrors);
+      return;
+    }
+
+    setFieldErrors((current) =>
+      dismissAllFieldErrors(current, state.fieldErrors),
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-      <form action={formAction} className="flex flex-col gap-6">
+      <form
+        action={formAction}
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-6"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -115,8 +148,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 id="name"
                 name="name"
                 defaultValue={user.name ?? ""}
-                required
+                aria-invalid={Boolean(errorFor("name"))}
+                aria-describedby={errorFor("name") ? "name-error" : undefined}
               />
+              <FieldError id="name-error" message={errorFor("name")} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -136,7 +171,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
             <Label>Currency</Label>
             <input type="hidden" name="currency" value={currency} />
             <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger className="w-full sm:max-w-xs">
+              <SelectTrigger
+                className="w-full sm:max-w-xs"
+                aria-invalid={Boolean(errorFor("currency"))}
+              >
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent>
@@ -147,6 +185,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            <FieldError id="currency-error" message={errorFor("currency")} />
           </CardContent>
         </Card>
 
@@ -215,7 +254,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </CardContent>
         </Card>
 
-        {state.error ? (
+        {shouldShowFormError(state.error, fieldErrors, state.fieldErrors) ? (
           <p className="text-destructive text-sm" role="alert">
             {state.error}
           </p>

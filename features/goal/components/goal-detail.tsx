@@ -31,6 +31,7 @@ import {
   suggestedMonthlySavings,
 } from "@/features/goal/goal-math";
 import { categoryLabel, priorityLabel } from "@/features/goal/constants";
+import { dateOnlyFromStored } from "@/utils/date-only";
 import { formatMoney, toNumber } from "@/utils/money";
 import type {
   GoalCategory,
@@ -68,10 +69,13 @@ export function GoalDetail({
 }: GoalDetailProps) {
   const progress = goalProgressPercent(goal.currentAmount, goal.targetAmount);
   const remaining = amountNeeded(goal.currentAmount, goal.targetAmount);
+  const targetDate = goal.targetDate
+    ? dateOnlyFromStored(goal.targetDate)
+    : null;
   const monthly = suggestedMonthlySavings(
     goal.currentAmount,
     goal.targetAmount,
-    goal.targetDate ? new Date(goal.targetDate) : null,
+    targetDate,
   );
 
   const editableGoal: EditableGoal = goal;
@@ -111,9 +115,7 @@ export function GoalDetail({
         <div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <p>
             <span className="font-medium text-foreground">Deadline:</span>{" "}
-            {goal.targetDate
-              ? format(new Date(goal.targetDate), "PPP")
-              : "No deadline"}
+            {targetDate ? format(targetDate, "PPP") : "No deadline"}
           </p>
           <p>
             <span className="font-medium text-foreground">Category:</span>{" "}

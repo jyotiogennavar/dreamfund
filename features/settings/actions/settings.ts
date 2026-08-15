@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { getDemoUser } from "@/lib/demo-user";
+import { parseForm } from "@/lib/form";
 import { prisma } from "@/lib/db";
+import { updateSettingsSchema } from "@/features/settings/schemas";
 import {
   analyticsPath,
   goalsPath,
@@ -13,10 +15,9 @@ import {
 
 export type SettingsActionState = {
   error?: string;
+  fieldErrors?: Record<string, string>;
   success?: boolean;
 };
-
-const SUPPORTED_CURRENCIES = ["INR", "USD", "EUR", "GBP"] as const;
 
 function revalidateAppPaths() {
   revalidatePath(homePath());
@@ -29,35 +30,16 @@ export async function updateSettings(
   _prevState: SettingsActionState,
   formData: FormData,
 ): Promise<SettingsActionState> {
-  const name = String(formData.get("name") ?? "").trim();
-  const currency = String(formData.get("currency") ?? "INR").trim();
-  const notifyGoalAchieved = formData.get("notifyGoalAchieved") === "on";
-  const notifyMonthlySummary = formData.get("notifyMonthlySummary") === "on";
-  const notifyDepositReminder = formData.get("notifyDepositReminder") === "on";
-
-  if (!name) {
-    return { error: "Full name is required." };
-  }
-
-  if (
-    !SUPPORTED_CURRENCIES.includes(
-      currency as (typeof SUPPORTED_CURRENCIES)[number],
-    )
-  ) {
-    return { error: "Select a supported currency." };
+  const parsed = parseForm(updateSettingsSchema, formData);
+  if (!parsed.success) {
+    return { error: parsed.error, fieldErrors: parsed.fieldErrors };
   }
 
   const user = await getDemoUser();
 
   await prisma.user.update({
     where: { id: user.id },
-    data: {
-      name,
-      currency,
-      notifyGoalAchieved,
-      notifyMonthlySummary,
-      notifyDepositReminder,
-    },
+    data: parsed.data,
   });
 
   revalidateAppPaths();
