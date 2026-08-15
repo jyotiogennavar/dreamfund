@@ -12,9 +12,10 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const easeOutExpo = [0.19, 1, 0.22, 1] as const;
 const dialogSpring = { type: "spring", duration: 0.3, bounce: 0 } as const;
-const dialogExit = { duration: 0.15, ease: "easeOut" } as const;
-const dialogCenter = { x: "-50%", y: "-50%" } as const;
+const dialogExit = { duration: 0.15, ease: easeOutExpo } as const;
+const dialogShown = "translate(-50%, -50%)";
 
 const AlertDialogOpenContext = React.createContext(false);
 
@@ -81,7 +82,7 @@ function AlertDialogOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0, transition: dialogExit }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        transition={{ duration: 0.2, ease: easeOutExpo }}
       />
     </AlertDialogPrimitive.Overlay>
   );
@@ -94,7 +95,9 @@ function AlertDialogContent({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
   const open = React.useContext(AlertDialogOpenContext);
   const shouldReduceMotion = useReducedMotion();
-  const hiddenScale = shouldReduceMotion ? 1 : 0.96;
+  const hiddenTransform = shouldReduceMotion
+    ? dialogShown
+    : "translate(-50%, -50%) scale(0.96)";
 
   return (
     <MotionConfig reducedMotion="user" transition={dialogSpring}>
@@ -113,12 +116,11 @@ function AlertDialogContent({
                   "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[min(var(--dialog-max-width,28rem),calc(100%-2rem))] gap-6 rounded-4xl bg-popover p-6 text-sm text-popover-foreground shadow-xl ring-1 ring-foreground/5 outline-none dark:ring-foreground/10",
                   className,
                 )}
-                initial={{ opacity: 0, scale: hiddenScale, ...dialogCenter }}
-                animate={{ opacity: 1, scale: 1, ...dialogCenter }}
+                initial={{ opacity: 0, transform: hiddenTransform }}
+                animate={{ opacity: 1, transform: dialogShown }}
                 exit={{
                   opacity: 0,
-                  scale: hiddenScale,
-                  ...dialogCenter,
+                  transform: hiddenTransform,
                   transition: dialogExit,
                 }}
               >

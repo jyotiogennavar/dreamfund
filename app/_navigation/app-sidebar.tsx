@@ -9,7 +9,6 @@ import {
   Settings,
   Target,
 } from "lucide-react";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 import {
   Sidebar,
@@ -54,14 +53,6 @@ const navItems = [
 
 const ICON_ONLY_QUERY = "(max-width: 63.999rem)";
 
-const sidebarTransition = { type: "spring", duration: 0.35, bounce: 0 } as const;
-
-const labelVariants = {
-  initial: { opacity: 0, x: -8 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -8 },
-};
-
 function subscribeToIconOnlyViewport(onStoreChange: () => void) {
   const mediaQuery = window.matchMedia(ICON_ONLY_QUERY);
   mediaQuery.addEventListener("change", onStoreChange);
@@ -89,48 +80,35 @@ export function AppSidebar() {
   }, [isIconOnlyViewport, setOpen]);
 
   return (
-    <MotionConfig transition={sidebarTransition} reducedMotion="user">
-      <Sidebar
-        collapsible="icon"
-        className="top-14! h-[calc(100svh-3.5rem)]!"
-      >
-        <SidebarContent>
-          <SidebarGroup className="mt-4">
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {navItems.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      className="text-[13px] tracking-wide [&_svg]:size-3.5"
-                      isActive={item.isActive(pathname)}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <AnimatePresence initial={false} mode="popLayout">
-                          {showLabels ? (
-                            <motion.span
-                              key={item.title}
-                              variants={labelVariants}
-                              initial="initial"
-                              animate="animate"
-                              exit="exit"
-                              className="whitespace-nowrap"
-                            >
-                              {item.title}
-                            </motion.span>
-                          ) : null}
-                        </AnimatePresence>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-    </MotionConfig>
+    <Sidebar
+      collapsible="icon"
+      className="top-14! h-[calc(100svh-3.5rem)]!"
+    >
+      <SidebarContent>
+        <SidebarGroup className="mt-4">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    className="text-[13px] tracking-wide [&_svg]:size-3.5"
+                    isActive={item.isActive(pathname)}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.href}>
+                      <item.icon />
+                      {showLabels ? (
+                        <span className="whitespace-nowrap">{item.title}</span>
+                      ) : null}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }

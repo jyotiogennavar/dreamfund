@@ -50,6 +50,7 @@ export function CompletionChart({
                     innerRadius={60}
                     outerRadius={90}
                     strokeWidth={0}
+                    isAnimationActive={false}
                   >
                     {segments.map((segment) => (
                       <Cell key={segment.name} fill={segment.fill} />

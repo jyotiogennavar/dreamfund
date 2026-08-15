@@ -11,9 +11,14 @@ import { goalsPath } from "@/paths";
 type DeleteGoalButtonProps = {
   goalId: string;
   goalName: string;
+  trigger?: React.ReactNode;
 };
 
-export function DeleteGoalButton({ goalId, goalName }: DeleteGoalButtonProps) {
+export function DeleteGoalButton({
+  goalId,
+  goalName,
+  trigger,
+}: DeleteGoalButtonProps) {
   const router = useRouter();
 
   return (
@@ -28,14 +33,16 @@ export function DeleteGoalButton({ goalId, goalName }: DeleteGoalButtonProps) {
         router.refresh();
       }}
       trigger={
-        <Button
-          type="button"
-          variant="destructive"
-          size="icon"
-          aria-label={`Delete ${goalName}`}
-        >
-          <Trash2Icon />
-        </Button>
+        trigger ?? (
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            aria-label={`Delete ${goalName}`}
+          >
+            <Trash2Icon />
+          </Button>
+        )
       }
     />
   );

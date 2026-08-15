@@ -15,7 +15,7 @@ export function NewGoalCard({ currency }: NewGoalCardProps) {
       currency={currency}
       trigger={
         <button type="button" className="h-full w-full max-w-md text-left">
-          <Card className="flex h-full min-h-56 items-center justify-center transition-shadow hover:shadow-lg">
+          <Card className="flex h-full min-h-56 items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <PlusIcon className="size-6" aria-hidden />

@@ -6,6 +6,7 @@ import { OverviewStats } from "@/components/overview-stats";
 import { Placeholder } from "@/components/placeholder";
 import { PageSpinner } from "@/components/ui/spinner";
 import { getDashboardData } from "@/features/goal/queries/goals";
+import { toNumber } from "@/utils/money";
 
 export default function Home() {
   return (
@@ -36,7 +37,17 @@ async function HomeContent() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {goals.slice(0, 3).map((goal) => (
-              <GoalCard key={goal.id} goal={goal} currency={currency} />
+              <GoalCard
+                key={goal.id}
+                goal={{
+                  id: goal.id,
+                  name: goal.name,
+                  description: goal.description,
+                  currentAmount: toNumber(goal.currentAmount),
+                  targetAmount: toNumber(goal.targetAmount),
+                }}
+                currency={currency}
+              />
             ))}
           </div>
         )}
