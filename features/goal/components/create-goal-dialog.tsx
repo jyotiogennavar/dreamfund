@@ -253,7 +253,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
             >
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent alignItemWithTrigger>
               {GOAL_PRIORITIES.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}

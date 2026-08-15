@@ -120,7 +120,7 @@ function AddDepositForm({
           >
             <SelectValue placeholder="Select a goal" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent alignItemWithTrigger>
             {goals.map((goal) => (
               <SelectItem key={goal.id} value={goal.id}>
                 {goal.name}

@@ -177,7 +177,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               >
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent alignItemWithTrigger>
                 {CURRENCY_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}

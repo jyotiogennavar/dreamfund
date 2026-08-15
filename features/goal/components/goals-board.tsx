@@ -105,7 +105,7 @@ export function GoalsBoard({
           <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent alignItemWithTrigger>
             <SelectItem value="priority">Sort: Priority</SelectItem>
             <SelectItem value="deadline">Sort: Deadline</SelectItem>
             <SelectItem value="progress">Sort: Progress</SelectItem>
@@ -115,7 +115,7 @@ export function GoalsBoard({
           <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent alignItemWithTrigger>
             <SelectItem value="all">All categories</SelectItem>
             {GOAL_CATEGORIES.map((item) => (
               <SelectItem key={item.value} value={item.value}>
