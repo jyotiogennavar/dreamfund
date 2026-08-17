@@ -14,8 +14,8 @@ export function NewGoalCard({ currency }: NewGoalCardProps) {
     <CreateGoalDialog
       currency={currency}
       trigger={
-        <button type="button" className="h-full w-full max-w-md text-left">
-          <Card className="flex h-full min-h-56 items-center justify-center">
+        <button type="button" className="group h-full w-full max-w-md text-left">
+          <Card className="flex h-full min-h-56 items-center justify-center transition-[background-color] duration-150 ease hover:bg-muted group-focus-visible:bg-muted">
             <div className="flex flex-col items-center gap-3">
               <span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <PlusIcon className="size-6" aria-hidden />
