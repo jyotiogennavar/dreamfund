@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 type SubmitButtonProps = {
   label: string;
   pendingLabel?: string;
+  disabled?: boolean;
   className?: string;
   variant?: React.ComponentProps<typeof Button>["variant"];
   size?: React.ComponentProps<typeof Button>["size"];
@@ -17,6 +18,7 @@ type SubmitButtonProps = {
 export function SubmitButton({
   label,
   pendingLabel,
+  disabled = false,
   className,
   variant,
   size,
@@ -26,7 +28,8 @@ export function SubmitButton({
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={disabled || pending}
+      aria-busy={pending}
       variant={variant}
       size={size}
       className={cn("w-full sm:w-auto", className)}

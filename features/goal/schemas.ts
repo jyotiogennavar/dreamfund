@@ -1,10 +1,24 @@
 import { z } from "zod";
 
 import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
-import { parseDateOnly } from "@/utils/date-only";
+import {
+  DEADLINE_MAX_YEARS,
+  deadlineDateRange,
+  formatDateOnly,
+  isDateOnlyInRange,
+  parseDateOnly,
+} from "@/utils/date-only";
 
-function requiredText(message: string) {
-  return z.string().trim().min(1, message);
+export const MAX_GOAL_NAME_LENGTH = 100;
+export const MAX_GOAL_DESCRIPTION_LENGTH = 500;
+
+function requiredText(message: string, maxLength?: number, maxMessage?: string) {
+  return z.preprocess(
+    (value) => (value == null ? "" : value),
+    maxLength == null || maxMessage == null
+      ? z.string().trim().min(1, message)
+      : z.string().trim().min(1, message).max(maxLength, maxMessage),
+  );
 }
 
 function optionalText() {
@@ -20,16 +34,22 @@ const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 function parseAmountValue(
   value: string,
   ctx: z.RefinementCtx,
-  message: string,
+  label: string,
 ) {
   if (/[eE]/.test(value) || !AMOUNT_PATTERN.test(value)) {
-    ctx.addIssue({ code: "custom", message });
+    ctx.addIssue({
+      code: "custom",
+      message: `${label} must be a valid non-negative number.`,
+    });
     return z.NEVER;
   }
 
   const amount = Number(value);
   if (!Number.isFinite(amount) || amount < 0) {
-    ctx.addIssue({ code: "custom", message });
+    ctx.addIssue({
+      code: "custom",
+      message: `${label} must be a valid non-negative number.`,
+    });
     return z.NEVER;
   }
 
@@ -37,63 +57,68 @@ function parseAmountValue(
 }
 
 function amountField(label: string) {
-  return z
-    .string()
-    .trim()
-    .min(1, `${label} is required.`)
-    .transform((value, ctx) =>
-      parseAmountValue(
-        value,
-        ctx,
-        `${label} must be a valid non-negative number.`,
-      ),
-    );
+  return z.preprocess(
+    (value) => (value == null ? "" : value),
+    z
+      .string()
+      .trim()
+      .min(1, `${label} is required.`)
+      .transform((value, ctx) => parseAmountValue(value, ctx, label)),
+  );
+}
+
+function deadlineField() {
+  return requiredText("Deadline is required.").transform((value, ctx) => {
+    const date = parseDateOnly(value);
+    if (!date) {
+      ctx.addIssue({ code: "custom", message: "Deadline is invalid." });
+      return z.NEVER;
+    }
+
+    const { min, max } = deadlineDateRange();
+    if (!isDateOnlyInRange(date, min, max)) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          formatDateOnly(date) < formatDateOnly(min)
+            ? "Deadline must be today or a future date."
+            : `Deadline cannot be more than ${DEADLINE_MAX_YEARS} years from today.`,
+      });
+      return z.NEVER;
+    }
+
+    return date;
+  });
 }
 
 const goalFieldsSchema = z.object({
-  name: requiredText("Goal name is required."),
-  description: optionalText(),
+  name: requiredText(
+    "Goal name is required.",
+    MAX_GOAL_NAME_LENGTH,
+    `Goal name must be ${MAX_GOAL_NAME_LENGTH} characters or fewer.`,
+  ),
+  description: requiredText(
+    "Description is required.",
+    MAX_GOAL_DESCRIPTION_LENGTH,
+    `Description must be ${MAX_GOAL_DESCRIPTION_LENGTH} characters or fewer.`,
+  ),
   targetAmount: amountField("Target amount").refine((value) => value > 0, {
     message: "Target amount must be greater than zero.",
   }),
-  category: z.enum(GoalCategory, { error: "Select a valid category." }),
-  priority: z.enum(GoalPriority, { error: "Select a valid priority." }),
-  deadline: z
-    .string()
-    .trim()
-    .optional()
-    .transform((value, ctx) => {
-      if (!value) {
-        return null;
-      }
-
-      const date = parseDateOnly(value);
-      if (!date) {
-        ctx.addIssue({ code: "custom", message: "Deadline is invalid." });
-        return z.NEVER;
-      }
-
-      return date;
-    }),
+  category: z.preprocess(
+    (value) => value ?? "",
+    z.enum(GoalCategory, { error: "Select a category." }),
+  ),
+  priority: z.preprocess(
+    (value) => value ?? "",
+    z.enum(GoalPriority, { error: "Select a priority." }),
+  ),
+  deadline: deadlineField(),
 });
 
 export const createGoalSchema = goalFieldsSchema
   .extend({
-    startingAmount: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value, ctx) => {
-        if (value == null || value === "") {
-          return 0;
-        }
-
-        return parseAmountValue(
-          value,
-          ctx,
-          "Starting amount must be a valid non-negative number.",
-        );
-      }),
+    startingAmount: amountField("Starting amount"),
   })
   .refine((data) => data.startingAmount <= data.targetAmount, {
     message: "Starting amount cannot exceed the target amount.",

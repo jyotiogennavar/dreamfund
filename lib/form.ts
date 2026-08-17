@@ -35,11 +35,7 @@ export function fromErrorToActionState(error: unknown): ActionState {
     );
   }
 
-  if (error instanceof Error) {
-    return toActionState("ERROR", error.message);
-  }
-
-  return toActionState("ERROR", "An unknown error occurred");
+  return toActionState("ERROR", "Something went wrong while saving. Try again.");
 }
 
 export function formValues(formData: FormData): Record<string, string> {

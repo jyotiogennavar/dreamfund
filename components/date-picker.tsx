@@ -22,9 +22,12 @@ type DatePickerProps = {
   name: string;
   id?: string;
   value?: Date;
+  minDate?: Date;
+  maxDate?: Date;
   placeholder?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  "aria-required"?: boolean;
   onChange?: (value: Date | undefined) => void;
   ref?: React.Ref<DatePickerHandle>;
 };
@@ -33,11 +36,14 @@ export function DatePicker({
   name,
   id,
   value,
+  minDate,
+  maxDate,
   placeholder = "Pick a date",
   onChange,
   ref,
   "aria-invalid": ariaInvalid,
   "aria-describedby": ariaDescribedBy,
+  "aria-required": ariaRequired,
 }: DatePickerProps) {
   const [uncontrolled, setUncontrolled] = useState<Date | undefined>(value);
   const selected = onChange ? value : uncontrolled;
@@ -70,6 +76,7 @@ export function DatePicker({
             variant="outline"
             aria-invalid={ariaInvalid}
             aria-describedby={ariaDescribedBy}
+            aria-required={ariaRequired}
             className={cn(
               "justify-start font-normal",
               !selected && "text-muted-foreground",
@@ -85,6 +92,12 @@ export function DatePicker({
             selected={selected}
             onSelect={setDate}
             captionLayout="dropdown"
+            startMonth={minDate}
+            endMonth={maxDate}
+            disabled={[
+              ...(minDate ? [{ before: minDate }] : []),
+              ...(maxDate ? [{ after: maxDate }] : []),
+            ]}
           />
         </PopoverContent>
       </Popover>

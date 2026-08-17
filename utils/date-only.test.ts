@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  addCalendarYears,
   dateOnlyFromStored,
+  deadlineDateRange,
   formatDateOnly,
   parseDateOnly,
+  startOfLocalDay,
 } from "./date-only";
 
 describe("parseDateOnly", () => {
@@ -40,5 +43,20 @@ describe("dateOnlyFromStored", () => {
     assert.equal(date.getMonth(), 0);
     assert.equal(date.getDate(), 1);
     assert.equal(formatDateOnly(date), "2027-01-01");
+  });
+});
+
+describe("deadlineDateRange", () => {
+  it("starts today and ends 5 years later on the same calendar day", () => {
+    const now = new Date(2026, 7, 17, 9, 30);
+    const { min, max } = deadlineDateRange(now);
+
+    assert.equal(formatDateOnly(min), "2026-08-17");
+    assert.equal(formatDateOnly(max), "2031-08-17");
+    assert.equal(formatDateOnly(startOfLocalDay(now)), "2026-08-17");
+    assert.equal(
+      formatDateOnly(addCalendarYears(startOfLocalDay(now), 5)),
+      "2031-08-17",
+    );
   });
 });

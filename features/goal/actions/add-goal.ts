@@ -29,7 +29,7 @@ export async function createGoal(
       const goal = await tx.goal.create({
         data: {
           name: fields.name,
-          description: fields.description || null,
+          description: fields.description,
           targetAmount: fields.targetAmount,
           currentAmount: fields.startingAmount,
           targetDate: fields.deadline,

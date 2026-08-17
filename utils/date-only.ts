@@ -1,5 +1,44 @@
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})/;
 
+export const DEADLINE_MAX_YEARS = 5;
+
+/** Local calendar date at noon, so comparisons stay on the intended day. */
+export function startOfLocalDay(date = new Date()): Date {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    12,
+    0,
+    0,
+    0,
+  );
+}
+
+export function addCalendarYears(date: Date, years: number): Date {
+  return new Date(
+    date.getFullYear() + years,
+    date.getMonth(),
+    date.getDate(),
+    12,
+    0,
+    0,
+    0,
+  );
+}
+
+/** Allowed goal deadlines: today through 5 years from today. */
+export function deadlineDateRange(now = new Date()) {
+  const min = startOfLocalDay(now);
+  const max = addCalendarYears(min, DEADLINE_MAX_YEARS);
+  return { min, max };
+}
+
+export function isDateOnlyInRange(date: Date, min: Date, max: Date) {
+  const value = formatDateOnly(date);
+  return value >= formatDateOnly(min) && value <= formatDateOnly(max);
+}
+
 /** Parse yyyy-MM-dd as a local calendar date at noon to avoid UTC/DST shifts. */
 export function parseDateOnly(value: string): Date | null {
   const match = DATE_ONLY.exec(value.trim());

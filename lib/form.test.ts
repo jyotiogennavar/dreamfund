@@ -84,15 +84,19 @@ describe("fromErrorToActionState", () => {
     assert.deepEqual(state.fieldErrors, { name: "Name is required." });
   });
 
-  it("maps an Error to its message", () => {
-    const state = fromErrorToActionState(new Error("Goal not found."));
-    assert.equal(state.status, "ERROR");
-    assert.equal(state.message, "Goal not found.");
-  });
+  it("maps unexpected errors to a generic save message", () => {
+    const fromError = fromErrorToActionState(new Error("Goal not found."));
+    const fromUnknown = fromErrorToActionState("nope");
 
-  it("maps an unknown value to a generic message", () => {
-    const state = fromErrorToActionState("nope");
-    assert.equal(state.status, "ERROR");
-    assert.equal(state.message, "An unknown error occurred");
+    assert.equal(fromError.status, "ERROR");
+    assert.equal(
+      fromError.message,
+      "Something went wrong while saving. Try again.",
+    );
+    assert.equal(fromUnknown.status, "ERROR");
+    assert.equal(
+      fromUnknown.message,
+      "Something went wrong while saving. Try again.",
+    );
   });
 });

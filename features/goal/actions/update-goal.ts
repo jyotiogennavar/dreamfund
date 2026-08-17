@@ -41,7 +41,7 @@ export async function updateGoal(
       where: { id: fields.goalId },
       data: {
         name: fields.name,
-        description: fields.description || null,
+        description: fields.description,
         targetAmount: fields.targetAmount,
         targetDate: fields.deadline,
         category: fields.category,

@@ -10,6 +10,7 @@ import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -31,7 +32,12 @@ import { createGoal } from "@/features/goal/actions/add-goal";
 import { updateGoal } from "@/features/goal/actions/update-goal";
 import { GOAL_CATEGORIES, GOAL_PRIORITIES } from "@/features/goal/constants";
 import { suggestedMonthlySavings } from "@/features/goal/goal-math";
-import { createGoalSchema, updateGoalSchema } from "@/features/goal/schemas";
+import {
+  createGoalSchema,
+  MAX_GOAL_DESCRIPTION_LENGTH,
+  MAX_GOAL_NAME_LENGTH,
+  updateGoalSchema,
+} from "@/features/goal/schemas";
 import { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 import {
   clearFieldError,
@@ -42,7 +48,11 @@ import {
   visibleFieldError,
 } from "@/lib/form";
 import { cn } from "@/lib/utils";
-import { dateOnlyFromStored } from "@/utils/date-only";
+import {
+  deadlineDateRange,
+  dateOnlyFromStored,
+  isDateOnlyInRange,
+} from "@/utils/date-only";
 import { formatMoney } from "@/utils/money";
 
 export type EditableGoal = {
@@ -93,7 +103,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
     goal ? String(goal.currentAmount) : "",
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     isEditing ? updateGoal : createGoal,
     EMPTY_ACTION_STATE,
   );
@@ -106,6 +116,11 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    if (isPending) {
+      event.preventDefault();
+      return;
+    }
+
     const schema = isEditing ? updateGoalSchema : createGoalSchema;
     const parsed = parseForm(schema, new FormData(event.currentTarget));
     if (!parsed.success) {
@@ -118,6 +133,11 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       dismissAllFieldErrors(current, state.fieldErrors),
     );
   }
+
+  const { min: minDeadline, max: maxDeadline } = useMemo(
+    () => deadlineDateRange(),
+    [],
+  );
 
   const monthlyPreview = useMemo(() => {
     const target = Number(targetAmount);
@@ -133,6 +153,14 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       deadline,
     );
   }, [targetAmount, startingAmount, deadline]);
+
+  const isFormComplete =
+    name.trim().length > 0 &&
+    description.trim().length > 0 &&
+    targetAmount.trim().length > 0 &&
+    (isEditing || startingAmount.trim().length > 0) &&
+    deadline != null &&
+    isDateOnlyInRange(deadline, minDeadline, maxDeadline);
 
   return (
     <Form
@@ -151,6 +179,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
           name="name"
           placeholder="e.g. Japan Trip"
           value={name}
+          maxLength={MAX_GOAL_NAME_LENGTH}
           aria-invalid={Boolean(errorFor("name"))}
           aria-describedby={
             errorFor("name") ? `${formId}-name-error` : undefined
@@ -172,7 +201,21 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
           placeholder="What are you saving for?"
           rows={2}
           value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          maxLength={MAX_GOAL_DESCRIPTION_LENGTH}
+          aria-invalid={Boolean(errorFor("description"))}
+          aria-describedby={
+            errorFor("description")
+              ? `${formId}-description-error`
+              : undefined
+          }
+          onChange={(event) => {
+            setDescription(event.target.value);
+            dismissError("description");
+          }}
+        />
+        <FieldError
+          id={`${formId}-description-error`}
+          message={errorFor("description")}
         />
       </div>
 
@@ -274,6 +317,8 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
             id={`${formId}-deadline`}
             name="deadline"
             value={deadline}
+            minDate={minDeadline}
+            maxDate={maxDeadline}
             aria-invalid={Boolean(errorFor("deadline"))}
             aria-describedby={
               errorFor("deadline") ? `${formId}-deadline-error` : undefined
@@ -342,9 +387,15 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       ) : null}
 
       <DialogFooter>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+        </DialogClose>
         <SubmitButton
           label={isEditing ? "Save Changes" : "Create Goal"}
           pendingLabel={isEditing ? "Saving…" : "Creating…"}
+          disabled={!isFormComplete || isPending}
         />
       </DialogFooter>
     </Form>
