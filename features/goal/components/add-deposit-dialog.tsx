@@ -5,6 +5,7 @@ import { PlusIcon } from "lucide-react";
 
 import { DatePicker } from "@/components/date-picker";
 import { FieldError } from "@/components/field-error";
+import { CurrencyInput } from "@/components/form/currency-input";
 import { Form } from "@/components/form/form";
 import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -46,18 +46,21 @@ type GoalOption = {
 type AddDepositDialogProps = {
   goals: GoalOption[];
   defaultGoalId?: string;
+  currency?: string;
   trigger?: React.ReactNode;
 };
 
 type AddDepositFormProps = {
   goals: GoalOption[];
   defaultGoalId?: string;
+  currency?: string;
   onSuccess: () => void;
 };
 
 function AddDepositForm({
   goals,
   defaultGoalId,
+  currency = "INR",
   onSuccess,
 }: AddDepositFormProps) {
   const formId = useId();
@@ -136,18 +139,15 @@ function AddDepositForm({
 
       <div className="grid gap-2">
         <Label htmlFor={`${formId}-amount`}>Amount</Label>
-        <Input
+        <CurrencyInput
           id={`${formId}-amount`}
           name="amount"
-          type="number"
-          min="1"
-          step="1"
-          inputMode="decimal"
+          currency={currency}
           aria-invalid={Boolean(errorFor("amount"))}
           aria-describedby={
             errorFor("amount") ? `${formId}-amount-error` : undefined
           }
-          onChange={() => dismissError("amount")}
+          onValueChange={() => dismissError("amount")}
         />
         <FieldError
           id={`${formId}-amount-error`}
@@ -206,6 +206,7 @@ function AddDepositForm({
 export function AddDepositDialog({
   goals,
   defaultGoalId,
+  currency,
   trigger,
 }: AddDepositDialogProps) {
   const [open, setOpen] = useState(false);
@@ -236,6 +237,7 @@ export function AddDepositDialog({
           <AddDepositForm
             goals={goals}
             defaultGoalId={defaultGoalId}
+            currency={currency}
             onSuccess={() => setOpen(false)}
           />
         ) : null}

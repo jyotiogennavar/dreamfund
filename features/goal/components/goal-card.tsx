@@ -121,6 +121,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
           <AddDepositDialog
             goals={[{ id: goal.id, name: goal.name }]}
             defaultGoalId={goal.id}
+            currency={currency}
             trigger={
               <Button
                 type="button"

@@ -98,6 +98,7 @@ export function GoalDetail({
             <AddDepositDialog
               goals={goalOptions}
               defaultGoalId={goal.id}
+              currency={currency}
             />
             <CreateGoalDialog
               currency={currency}

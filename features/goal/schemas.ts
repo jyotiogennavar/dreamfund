@@ -8,6 +8,7 @@ import {
   isDateOnlyInRange,
   parseDateOnly,
 } from "@/utils/date-only";
+import { stripMoneyFormatting } from "@/utils/money";
 
 export const MAX_GOAL_NAME_LENGTH = 100;
 export const MAX_GOAL_DESCRIPTION_LENGTH = 500;
@@ -58,7 +59,7 @@ function parseAmountValue(
 
 function amountField(label: string) {
   return z.preprocess(
-    (value) => (value == null ? "" : value),
+    (value) => stripMoneyFormatting(value == null ? "" : String(value)),
     z
       .string()
       .trim()

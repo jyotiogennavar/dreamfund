@@ -44,6 +44,24 @@ describe("createGoalSchema", () => {
     );
   });
 
+  it("parses Indian-formatted amounts as the raw number", () => {
+    const parsed = parseForm(
+      createGoalSchema,
+      formData({
+        ...goalFields,
+        targetAmount: "₹ 1,00,000",
+        startingAmount: "10,000",
+      }),
+    );
+
+    assert.equal(parsed.success, true);
+    if (!parsed.success) {
+      return;
+    }
+    assert.equal(parsed.data.targetAmount, 100000);
+    assert.equal(parsed.data.startingAmount, 10000);
+  });
+
   it("rejects scientific notation and extra decimals", () => {
     const scientific = parseForm(
       createGoalSchema,

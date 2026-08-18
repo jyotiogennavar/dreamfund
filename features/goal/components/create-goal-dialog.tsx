@@ -5,6 +5,7 @@ import { PlusIcon } from "lucide-react";
 
 import { DatePicker } from "@/components/date-picker";
 import { FieldError } from "@/components/field-error";
+import { CurrencyInput } from "@/components/form/currency-input";
 import { Form } from "@/components/form/form";
 import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ import {
   dateOnlyFromStored,
   isDateOnlyInRange,
 } from "@/utils/date-only";
-import { formatMoney } from "@/utils/money";
+import { formatMoney, sanitizeMoneyInput, toNumber } from "@/utils/money";
 
 export type EditableGoal = {
   id: string;
@@ -97,10 +98,10 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
     return dateOnlyFromStored(goal.targetDate) ?? undefined;
   });
   const [targetAmount, setTargetAmount] = useState(
-    goal ? String(goal.targetAmount) : "",
+    goal ? sanitizeMoneyInput(String(goal.targetAmount)) : "",
   );
   const [startingAmount, setStartingAmount] = useState(
-    goal ? String(goal.currentAmount) : "",
+    goal ? sanitizeMoneyInput(String(goal.currentAmount)) : "",
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [state, formAction, isPending] = useActionState(
@@ -140,8 +141,8 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
   );
 
   const monthlyPreview = useMemo(() => {
-    const target = Number(targetAmount);
-    const current = Number(startingAmount || 0);
+    const target = toNumber(targetAmount);
+    const current = toNumber(startingAmount || 0);
 
     if (!Number.isFinite(target) || target <= 0 || !deadline) {
       return null;
@@ -222,13 +223,10 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       <div className={cn("grid gap-4", !isEditing && "sm:grid-cols-2")}>
         <div className="grid gap-2">
           <Label htmlFor={`${formId}-targetAmount`}>Target Amount</Label>
-          <Input
+          <CurrencyInput
             id={`${formId}-targetAmount`}
             name="targetAmount"
-            type="number"
-            min="1"
-            step="1"
-            inputMode="decimal"
+            currency={currency}
             value={targetAmount}
             aria-invalid={Boolean(errorFor("targetAmount"))}
             aria-describedby={
@@ -236,8 +234,8 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
                 ? `${formId}-targetAmount-error`
                 : undefined
             }
-            onChange={(event) => {
-              setTargetAmount(event.target.value);
+            onValueChange={(rawValue) => {
+              setTargetAmount(rawValue);
               dismissError("targetAmount");
             }}
           />
@@ -249,13 +247,10 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
         {!isEditing ? (
           <div className="grid gap-2">
             <Label htmlFor={`${formId}-startingAmount`}>Starting Amount</Label>
-            <Input
+            <CurrencyInput
               id={`${formId}-startingAmount`}
               name="startingAmount"
-              type="number"
-              min="0"
-              step="1"
-              inputMode="decimal"
+              currency={currency}
               value={startingAmount}
               aria-invalid={Boolean(errorFor("startingAmount"))}
               aria-describedby={
@@ -263,8 +258,8 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
                   ? `${formId}-startingAmount-error`
                   : undefined
               }
-              onChange={(event) => {
-                setStartingAmount(event.target.value);
+              onValueChange={(rawValue) => {
+                setStartingAmount(rawValue);
                 dismissError("startingAmount");
               }}
             />
