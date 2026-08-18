@@ -69,7 +69,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
       >
         <span className="sr-only">{goal.name}</span>
       </Link>
-      <CardHeader className="pointer-events-none">
+      <CardHeader className="pointer-events-none gap-2">
         <div className="flex items-start justify-between gap-2">
           <CardTitle>{goal.name}</CardTitle>
           <span
@@ -82,18 +82,24 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
           </span>
         </div>
         {goal.description ? (
-          <CardDescription className="line-clamp-2">
+          <CardDescription className="line-clamp-2 text-[0.8rem]">
             {goal.description}
           </CardDescription>
         ) : null}
       </CardHeader>
       <CardContent className="pointer-events-none flex flex-col gap-3">
         <div className="flex items-end justify-between gap-2">
-          <p className="text-muted-foreground text-xs">
-            {formatMoney(goal.currentAmount, currency)} /
-            {formatMoney(goal.targetAmount, currency)}
+          <p className="text-xs">
+            <span className="font-medium text-foreground tabular-nums">
+              {formatMoney(goal.currentAmount, currency)}
+            </span>
+            <span className="text-muted-foreground">
+              {" / "}
+              {formatMoney(goal.targetAmount, currency)}
+            </span>
           </p>
-          <p className="font-heading text-sm font-medium tabular-nums">
+        
+          <p className="font-heading text-xs font-medium tabular-nums">
             {progress}%
           </p>
         </div>
