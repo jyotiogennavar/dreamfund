@@ -106,9 +106,9 @@ export function GoalsBoard({
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent alignItemWithTrigger>
-            <SelectItem value="priority">Sort: Priority</SelectItem>
-            <SelectItem value="deadline">Sort: Deadline</SelectItem>
-            <SelectItem value="progress">Sort: Progress</SelectItem>
+            <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="deadline">Deadline</SelectItem>
+            <SelectItem value="progress">Progress</SelectItem>
           </SelectContent>
         </Select>
         <Select value={category} onValueChange={setCategory}>

@@ -18,12 +18,24 @@ describe("formatMoneyInput", () => {
     assert.equal(formatMoneyInput("10000000"), "₹ 1,00,00,000");
   });
 
+  it("formats USD, EUR, and GBP with groups of three", () => {
+    assert.equal(formatMoneyInput("1000", "USD"), "$ 1,000");
+    assert.equal(formatMoneyInput("10000", "USD"), "$ 10,000");
+    assert.equal(formatMoneyInput("100000", "USD"), "$ 100,000");
+    assert.equal(formatMoneyInput("1000000", "USD"), "$ 1,000,000");
+    assert.equal(formatMoneyInput("10000000", "USD"), "$ 10,000,000");
+    assert.equal(formatMoneyInput("100000", "EUR"), "€ 100,000");
+    assert.equal(formatMoneyInput("1000000", "GBP"), "£ 1,000,000");
+  });
+
   it("leaves an empty value empty", () => {
     assert.equal(formatMoneyInput(""), "");
+    assert.equal(formatMoneyInput("", "USD"), "");
   });
 
   it("formats zero", () => {
     assert.equal(formatMoneyInput("0"), "₹ 0");
+    assert.equal(formatMoneyInput("0", "USD"), "$ 0");
   });
 });
 
@@ -32,6 +44,9 @@ describe("sanitizeMoneyInput", () => {
     assert.equal(sanitizeMoneyInput("₹ 10,00,000"), "1000000");
     assert.equal(sanitizeMoneyInput("10,00,000"), "1000000");
     assert.equal(sanitizeMoneyInput("1000000"), "1000000");
+    assert.equal(sanitizeMoneyInput("$ 1,000,000"), "1000000");
+    assert.equal(sanitizeMoneyInput("€ 100,000"), "100000");
+    assert.equal(sanitizeMoneyInput("£ 1,000,000"), "1000000");
   });
 
   it("rejects letters and other non-numeric characters", () => {

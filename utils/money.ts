@@ -1,12 +1,26 @@
+import { groupingLocale } from "@/utils/currency";
+
 type Amount = number | string | { toString(): string };
 
 /** PostgreSQL DECIMAL(12, 2) leaves 10 digits before the decimal. */
 export const MAX_INR_INTEGER_DIGITS = 10;
 
-const inrIntegerFormatter = new Intl.NumberFormat("en-IN", {
-  maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
-});
+const integerFormatters = new Map<string, Intl.NumberFormat>();
+
+function integerGroupFormatter(currency: string) {
+  const locale = groupingLocale(currency);
+  const cached = integerFormatters.get(locale);
+  if (cached) {
+    return cached;
+  }
+
+  const formatter = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  });
+  integerFormatters.set(locale, formatter);
+  return formatter;
+}
 
 export function toNumber(amount: Amount): number {
   if (typeof amount === "number") {
@@ -19,7 +33,7 @@ export function toNumber(amount: Amount): number {
 export function formatMoney(
   amount: Amount,
   currency = "INR",
-  locale = "en-IN",
+  locale = groupingLocale(currency),
 ): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
@@ -31,7 +45,7 @@ export function formatMoney(
 export function getCurrencySymbol(currency = "INR"): string {
   try {
     return (
-      new Intl.NumberFormat("en-IN", {
+      new Intl.NumberFormat(groupingLocale(currency), {
         style: "currency",
         currency,
         currencyDisplay: "narrowSymbol",
@@ -66,7 +80,7 @@ export function formatMoneyInput(raw: string, currency = "INR"): string {
     return "";
   }
 
-  return `${getCurrencySymbol(currency)} ${inrIntegerFormatter.format(BigInt(digits))}`;
+  return `${getCurrencySymbol(currency)} ${integerGroupFormatter(currency).format(BigInt(digits))}`;
 }
 
 export function countDigitsBefore(value: string, caret: number): number {
