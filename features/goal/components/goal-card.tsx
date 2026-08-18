@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,16 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AddDepositDialog } from "@/features/goal/components/add-deposit-dialog";
+import {
+  CreateGoalDialog,
+  type EditableGoal,
+} from "@/features/goal/components/create-goal-dialog";
 import { DeleteGoalButton } from "@/features/goal/components/delete-goal-button";
 import {
-  formatGoalRemaining,
-  getGoalStatus,
-  goalProgressPercent,
-} from "@/features/goal/goal-math";
+  PRIORITY_PILL_CLASS,
+  priorityLabel,
+} from "@/features/goal/constants";
+import { formatGoalRemaining, goalProgressPercent } from "@/features/goal/goal-math";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/utils/money";
 import { goalPath } from "@/paths";
@@ -32,13 +36,7 @@ const footerHidden = "translateY(100%)";
 const hitboxClass = "relative after:absolute after:-inset-2.5 after:content-['']";
 
 type GoalCardProps = {
-  goal: {
-    id: string;
-    name: string;
-    description: string | null;
-    currentAmount: number;
-    targetAmount: number;
-  };
+  goal: EditableGoal;
   currency: string;
 };
 
@@ -46,15 +44,14 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
   const [actionsOpen, setActionsOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const progress = goalProgressPercent(goal.currentAmount, goal.targetAmount);
-  const status = getGoalStatus(goal.currentAmount, goal.targetAmount);
 
   return (
     <Card
-      className="relative h-full min-h-56 w-full max-w-md"
+      className="relative h-full min-h-56 w-full"
       onPointerEnter={(event) => {
         if (event.pointerType === "mouse") {
           setActionsOpen(true);
-        }
+        } 
       }}
       onPointerLeave={() => setActionsOpen(false)}
       onFocusCapture={() => setActionsOpen(true)}
@@ -75,8 +72,13 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
       <CardHeader className="pointer-events-none">
         <div className="flex items-start justify-between gap-2">
           <CardTitle>{goal.name}</CardTitle>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {status}
+          <span
+            className={cn(
+              "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+              PRIORITY_PILL_CLASS[goal.priority],
+            )}
+          >
+            {priorityLabel(goal.priority)}
           </span>
         </div>
         {goal.description ? (
@@ -134,6 +136,21 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
               >
                 <PlusIcon data-icon="inline-start" />
                 Deposit
+              </Button>
+            }
+          />
+          <CreateGoalDialog
+            currency={currency}
+            goal={goal}
+            trigger={
+              <Button
+                type="button"
+                size="icon-xs"
+                variant="secondary"
+                aria-label={`Edit ${goal.name}`}
+                className={hitboxClass}
+              >
+                <PencilIcon />
               </Button>
             }
           />

@@ -55,7 +55,7 @@ export function OverviewStats({
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
         <Card key={stat.key}>
-          <CardHeader>
+          <CardHeader> 
             <CardDescription>{stat.label}</CardDescription>
             <CardTitle className="text-2xl tabular-nums">
               {stat.format(values[stat.key], currency)}

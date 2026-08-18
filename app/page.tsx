@@ -45,6 +45,9 @@ async function HomeContent() {
                   description: goal.description,
                   currentAmount: toNumber(goal.currentAmount),
                   targetAmount: toNumber(goal.targetAmount),
+                  targetDate: goal.targetDate?.toISOString() ?? null,
+                  category: goal.category,
+                  priority: goal.priority,
                 }}
                 currency={currency}
               />

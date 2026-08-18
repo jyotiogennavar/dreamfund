@@ -32,3 +32,9 @@ export function priorityLabel(priority: GoalPriority): string {
     GOAL_PRIORITIES.find((item) => item.value === priority)?.label ?? priority
   );
 }
+
+export const PRIORITY_PILL_CLASS: Record<GoalPriority, string> = {
+  HIGH: "bg-destructive/10 text-destructive",
+  MEDIUM: "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+  LOW: "bg-sky-500/12 text-sky-800 dark:text-sky-300",
+};
