@@ -350,6 +350,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
               role="radio"
               aria-checked={category === item.value}
               variant={category === item.value ? "default" : "outline"}
+              className="px-4"
               onClick={() => {
                 setCategory(item.value);
                 dismissError("category");

@@ -74,7 +74,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
           <CardTitle>{goal.name}</CardTitle>
           <span
             className={cn(
-              "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+              "shrink-0 rounded-full px-3 py-1 text-xs font-medium",
               PRIORITY_PILL_CLASS[goal.priority],
             )}
           >
