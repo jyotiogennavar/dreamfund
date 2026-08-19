@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { HandCoins } from "lucide-react";
+import { Bell, HandCoins } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+import { Button } from "@/components/ui/button";
 import { homePath } from "@/paths";
 
 export function AppHeader() {
@@ -19,7 +18,10 @@ export function AppHeader() {
         <span>Dreamfund</span>
       </Link>
       <div className="ml-auto flex items-center gap-2">
-        <ThemeSwitcher />
+        <Button variant="ghost" size="icon" aria-label="Notifications">
+          <Bell className="size-4" />
+          <span className="sr-only">Notifications</span>
+        </Button>
         <Avatar size="sm">
           <AvatarImage src="https://github.com/shadcn.png" alt="Demo user" />
           <AvatarFallback>DU</AvatarFallback>

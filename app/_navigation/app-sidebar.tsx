@@ -82,7 +82,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="top-14! h-[calc(100svh-3.5rem)]!"
+      className="top-14! h-[calc(100svh-3.5rem)]! border-double"
     >
       <SidebarContent>
         <SidebarGroup className="mt-4">
@@ -92,7 +92,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    className="text-[13px] tracking-wide [&_svg]:size-3.5"
+                    className="text-[13px] tracking-wide data-active:bg-primary data-active:text-primary-foreground hover:data-active:bg-primary hover:data-active:text-primary-foreground [&_svg]:size-3.5"
                     isActive={item.isActive(pathname)}
                     tooltip={item.title}
                   >

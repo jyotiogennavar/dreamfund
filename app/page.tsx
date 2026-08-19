@@ -5,6 +5,7 @@ import { GoalCard } from "@/features/goal/components/goal-card";
 import { OverviewStats } from "@/components/overview-stats";
 import { Placeholder } from "@/components/placeholder";
 import { PageSpinner } from "@/components/ui/spinner";
+import { getGoalStatus } from "@/features/goal/goal-math";
 import { getDashboardData } from "@/features/goal/queries/goals";
 import { toNumber } from "@/utils/money";
 
@@ -18,6 +19,10 @@ export default function Home() {
 
 async function HomeContent() {
   const { currency, goals, stats } = await getDashboardData();
+  const activeGoals = goals.filter(
+    (goal) =>
+      getGoalStatus(goal.currentAmount, goal.targetAmount) !== "Completed",
+  );
 
   return (
     <div className="flex-1 flex flex-col gap-8">
@@ -29,14 +34,18 @@ async function HomeContent() {
           <AddGoalButton currency={currency} />
         </div>
 
-        {goals.length === 0 ? (
+        {activeGoals.length === 0 ? (
           <Placeholder
-            label="No goals yet"
-            description="Create your first savings goal to start tracking progress."
+            label={goals.length === 0 ? "No goals yet" : "No active goals"}
+            description={
+              goals.length === 0
+                ? "Create your first savings goal to start tracking progress."
+                : "Completed goals stay on the Goals page. Add a new one to keep saving."
+            }
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {goals.slice(0, 3).map((goal) => (
+            {activeGoals.slice(0, 3).map((goal) => (
               <GoalCard
                 key={goal.id}
                 goal={{
