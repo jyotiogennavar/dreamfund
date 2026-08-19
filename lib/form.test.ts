@@ -61,9 +61,18 @@ describe("toActionState", () => {
 
     assert.equal(first.status, "SUCCESS");
     assert.equal(first.message, "Saved");
+    assert.equal(first.data, undefined);
     assert.equal(second.status, "ERROR");
     assert.deepEqual(second.fieldErrors, { name: "Required" });
     assert.ok(second.timestamp >= first.timestamp);
+  });
+
+  it("passes optional action data through", () => {
+    const state = toActionState("SUCCESS", "Goal reached!", undefined, {
+      goalCompleted: true,
+    });
+
+    assert.deepEqual(state.data, { goalCompleted: true });
   });
 });
 

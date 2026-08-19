@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createDeposit } from "@/features/goal/actions/add-deposit";
+import { celebrateGoalCompletion } from "@/features/goal/celebrate-goal";
 import { createDepositSchema } from "@/features/goal/schemas";
 import {
   clearFieldError,
@@ -36,6 +37,7 @@ import {
   parseForm,
   shouldShowFormError,
   visibleFieldError,
+  type ActionState,
 } from "@/lib/form";
 
 type GoalOption = {
@@ -54,7 +56,7 @@ type AddDepositFormProps = {
   goals: GoalOption[];
   defaultGoalId?: string;
   currency?: string;
-  onSuccess: () => void;
+  onSuccess: (actionState: ActionState) => void;
 };
 
 function AddDepositForm({
@@ -238,7 +240,12 @@ export function AddDepositDialog({
             goals={goals}
             defaultGoalId={defaultGoalId}
             currency={currency}
-            onSuccess={() => setOpen(false)}
+            onSuccess={(state) => {
+              if (state.data?.goalCompleted) {
+                void celebrateGoalCompletion();
+              }
+              setOpen(false);
+            }}
           />
         ) : null}
       </DialogContent>

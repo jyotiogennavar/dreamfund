@@ -1,3 +1,4 @@
+import type { GoalStatus } from "@/features/goal/goal-math";
 import {
   GoalCategory,
   GoalPriority,
@@ -14,6 +15,12 @@ export const GOAL_CATEGORIES = [
   { value: GoalCategory.INVESTMENT, label: "Investment" },
   { value: GoalCategory.OTHER, label: "Other" },
 ] as const;
+
+export const GOAL_STATUSES: { value: GoalStatus; label: string }[] = [
+  { value: "Not Started", label: "Not Started" },
+  { value: "In Progress", label: "In Progress" },
+  { value: "Completed", label: "Completed" },
+];
 
 export const GOAL_PRIORITIES = [
   { value: GoalPriority.HIGH, label: "High" },

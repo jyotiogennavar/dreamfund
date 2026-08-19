@@ -1,6 +1,7 @@
 "use server";
 
 import { getOwnedGoal, revalidateGoalPaths } from "@/features/goal/actions/shared";
+import { getGoalStatus } from "@/features/goal/goal-math";
 import { createDepositSchema } from "@/features/goal/schemas";
 import { prisma } from "@/lib/db";
 import {
@@ -10,6 +11,7 @@ import {
   type ActionState,
 } from "@/lib/form";
 import { TransactionType } from "@/lib/generated/prisma/client";
+import { toNumber } from "@/utils/money";
 
 export async function createDeposit(
   _prevState: ActionState,
@@ -26,6 +28,13 @@ export async function createDeposit(
     if (!goal) {
       return toActionState("ERROR", "Goal not found.");
     }
+
+    const wasComplete =
+      getGoalStatus(goal.currentAmount, goal.targetAmount) === "Completed";
+    const nextAmount = toNumber(goal.currentAmount) + amount;
+    const justCompleted =
+      !wasComplete &&
+      getGoalStatus(nextAmount, goal.targetAmount) === "Completed";
 
     await prisma.$transaction(async (tx) => {
       await tx.transaction.create({
@@ -49,7 +58,12 @@ export async function createDeposit(
     });
 
     revalidateGoalPaths(goalId);
-    return toActionState("SUCCESS", "Deposit saved");
+    return toActionState(
+      "SUCCESS",
+      justCompleted ? "Goal reached!" : "Deposit saved",
+      undefined,
+      { goalCompleted: justCompleted },
+    );
   } catch (error) {
     return fromErrorToActionState(error);
   }

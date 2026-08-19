@@ -1,10 +1,15 @@
 import { z } from "zod";
 
+export type ActionStateData = {
+  goalCompleted?: boolean;
+};
+
 export type ActionState = {
   status: "SUCCESS" | "ERROR";
   message: string;
   fieldErrors?: Record<string, string>;
   timestamp: number;
+  data?: ActionStateData;
 };
 
 export const EMPTY_ACTION_STATE: ActionState = {
@@ -17,12 +22,14 @@ export function toActionState(
   status: ActionState["status"],
   message: string,
   fieldErrors?: Record<string, string>,
+  data?: ActionStateData,
 ): ActionState {
   return {
     status,
     message,
     fieldErrors,
     timestamp: Date.now(),
+    data,
   };
 }
 

@@ -13,8 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { goalProgressPercent } from "@/features/goal/goal-math";
-import { GOAL_CATEGORIES, categoryLabel } from "@/features/goal/constants";
+import { getGoalStatus, goalProgressPercent } from "@/features/goal/goal-math";
+import {
+  GOAL_CATEGORIES,
+  GOAL_STATUSES,
+  categoryLabel,
+} from "@/features/goal/constants";
 import type { GoalCategory, GoalPriority } from "@/lib/generated/prisma/enums";
 
 export type GoalsBoardItem = {
@@ -50,19 +54,23 @@ export function GoalsBoard({
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("priority");
   const [category, setCategory] = useState<string>("all");
+  const [status, setStatus] = useState<string>("all");
 
   const filteredGoals = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     const next = goals.filter((goal) => {
       const matchesCategory = category === "all" || goal.category === category;
+      const matchesStatus =
+        status === "all" ||
+        getGoalStatus(goal.currentAmount, goal.targetAmount) === status;
       const matchesSearch =
         query.length === 0 ||
         goal.name.toLowerCase().includes(query) ||
         (goal.description?.toLowerCase().includes(query) ?? false) ||
         categoryLabel(goal.category).toLowerCase().includes(query);
 
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesStatus && matchesSearch;
     });
 
     next.sort((a, b) => {
@@ -83,7 +91,7 @@ export function GoalsBoard({
     });
 
     return next;
-  }, [goals, search, sort, category]);
+  }, [goals, search, sort, category, status]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -118,6 +126,19 @@ export function GoalsBoard({
           <SelectContent alignItemWithTrigger>
             <SelectItem value="all">All categories</SelectItem>
             {GOAL_CATEGORIES.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger>
+            <SelectItem value="all">All statuses</SelectItem>
+            {GOAL_STATUSES.map((item) => (
               <SelectItem key={item.value} value={item.value}>
                 {item.label}
               </SelectItem>
