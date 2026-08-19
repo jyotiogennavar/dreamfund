@@ -19,7 +19,6 @@ export default async function SettingsPage() {
           name: user.name,
           email: user.email,
           currency: user.currency,
-          avatarUrl: user.avatarUrl,
           notifyGoalAchieved: user.notifyGoalAchieved,
           notifyMonthlySummary: user.notifyMonthlySummary,
           notifyDepositReminder: user.notifyDepositReminder,

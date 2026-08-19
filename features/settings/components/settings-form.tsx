@@ -8,7 +8,6 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FieldError } from "@/components/field-error";
 import { Form } from "@/components/form/form";
 import { SubmitButton } from "@/components/form/submit-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,7 +45,6 @@ type SettingsUser = {
   name: string | null;
   email: string;
   currency: string;
-  avatarUrl: string | null;
   notifyGoalAchieved: boolean;
   notifyMonthlySummary: boolean;
   notifyDepositReminder: boolean;
@@ -89,13 +87,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
     setNotifyDepositReminder(user.notifyDepositReminder);
   }
 
-  const initials = (user.name || user.email)
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
   const errorFor = (field: string) =>
     visibleFieldError(fieldErrors, state.fieldErrors, field);
 
@@ -131,17 +122,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="flex items-center gap-4">
-              <Avatar size="lg">
-                {user.avatarUrl ? (
-                  <AvatarImage src={user.avatarUrl} alt={user.name ?? "Avatar"} />
-                ) : null}
-                <AvatarFallback>{initials || "DU"}</AvatarFallback>
-              </Avatar>
-              <p className="text-muted-foreground text-sm">
-                Avatar upload comes later. Initials are used for now.
-              </p>
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -155,7 +135,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user.email} readOnly disabled />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                defaultValue={user.email}
+                aria-invalid={Boolean(errorFor("email"))}
+                aria-describedby={errorFor("email") ? "email-error" : undefined}
+              />
+              <FieldError id="email-error" message={errorFor("email")} />
             </div>
           </CardContent>
         </Card>
@@ -213,7 +202,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               value={notifyDepositReminder ? "on" : "off"}
             />
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="flex flex-col gap-1">
                 <Label htmlFor="notifyGoalAchieved">Goal Achieved</Label>
                 <p className="text-muted-foreground text-xs">
                   When a goal reaches its target.
@@ -226,7 +215,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               />
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="flex flex-col gap-1">
                 <Label htmlFor="notifyMonthlySummary">Monthly Summary</Label>
                 <p className="text-muted-foreground text-xs">
                   A monthly recap of savings progress.
@@ -239,7 +228,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               />
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="flex flex-col gap-1">
                 <Label htmlFor="notifyDepositReminder">Deposit Reminder</Label>
                 <p className="text-muted-foreground text-xs">
                   Occasional nudges to keep depositing.
@@ -264,7 +253,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </p>
         ) : null}
 
-        <SubmitButton label="Save Settings" pendingLabel="Saving…" />
+        <SubmitButton
+          label="Save Settings"
+          pendingLabel="Saving…"
+          className="motion-safe:hover:scale-100!"
+        />
       </Form>
 
       <Card>
@@ -279,6 +272,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             type="button"
             variant="outline"
             disabled={exporting}
+            className="motion-safe:hover:scale-100!"
             onClick={() => {
               startExport(async () => {
                 const csv = await getExportCsv();
