@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   description: "Track savings goals and watch your dreams take shape.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{

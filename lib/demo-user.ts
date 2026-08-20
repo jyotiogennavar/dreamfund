@@ -1,10 +1,14 @@
+import { connection } from "next/server";
+
 import { prisma } from "@/lib/db";
 
 export const DEMO_USER_EMAIL = "demo@dreamfund.app";
 
 export async function getDemoUser() {
-  const existing = await prisma.user.findFirst({
-    orderBy: { id: "asc" },
+  await connection();
+
+  const existing = await prisma.user.findUnique({
+    where: { email: DEMO_USER_EMAIL },
   });
 
   if (existing) {
