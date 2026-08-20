@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Bell, HandCoins } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { homePath } from "@/paths";
 
@@ -23,7 +23,6 @@ export function AppHeader() {
           <span className="sr-only">Notifications</span>
         </Button>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/shadcn.png" alt="Demo user" />
           <AvatarFallback>DU</AvatarFallback>
         </Avatar>
       </div>
