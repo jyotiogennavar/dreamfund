@@ -5,7 +5,9 @@ import { useMemo, useState } from "react";
 import { AddGoalButton } from "@/features/goal/components/add-goal-button";
 import { GoalCard } from "@/features/goal/components/goal-card";
 import { NewGoalCard } from "@/features/goal/components/new-goal-card";
+import { Placeholder } from "@/components/placeholder";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -49,7 +51,7 @@ const priorityRank: Record<GoalPriority, number> = {
 export function GoalsBoard({
   currency,
   goals,
-  title = "All Goals",
+  title = "All goals",
 }: GoalsBoardProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("priority");
@@ -102,57 +104,78 @@ export function GoalsBoard({
         <AddGoalButton currency={currency} />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search goals…"
-          className="sm:max-w-xs"
-        />
-        <Select value={sort} onValueChange={(value) => setSort(value as SortKey)}>
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger>
-            <SelectItem value="priority">Priority</SelectItem>
-            <SelectItem value="deadline">Deadline</SelectItem>
-            <SelectItem value="progress">Progress</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger>
-            <SelectItem value="all">All categories</SelectItem>
-            {GOAL_CATEGORIES.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger>
-            <SelectItem value="all">All statuses</SelectItem>
-            {GOAL_STATUSES.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+        <div className="grid gap-2 sm:max-w-xs sm:flex-1">
+          <Label htmlFor="goals-search">Search goals</Label>
+          <Input
+            id="goals-search"
+            type="search"
+            inputMode="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search goals…"
+          />
+        </div>
+        <div className="grid gap-2 sm:w-44">
+          <Label htmlFor="goals-sort">Sort</Label>
+          <Select value={sort} onValueChange={(value) => setSort(value as SortKey)}>
+            <SelectTrigger id="goals-sort" className="w-full">
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger>
+              <SelectItem value="priority">Priority</SelectItem>
+              <SelectItem value="deadline">Deadline</SelectItem>
+              <SelectItem value="progress">Progress</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-2 sm:w-44">
+          <Label htmlFor="goals-category">Category</Label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger id="goals-category" className="w-full">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger>
+              <SelectItem value="all">All categories</SelectItem>
+              {GOAL_CATEGORIES.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-2 sm:w-44">
+          <Label htmlFor="goals-status">Status</Label>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger id="goals-status" className="w-full">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger>
+              <SelectItem value="all">All statuses</SelectItem>
+              {GOAL_STATUSES.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {filteredGoals.map((goal) => (
-          <GoalCard key={goal.id} goal={goal} currency={currency} />
-        ))}
-        <NewGoalCard currency={currency} />
-      </div>
+      {filteredGoals.length === 0 && goals.length > 0 ? (
+        <Placeholder
+          label="No goals match these filters"
+          description="Try a different search, or clear a filter to see more of your goals."
+        />
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {filteredGoals.map((goal) => (
+            <GoalCard key={goal.id} goal={goal} currency={currency} />
+          ))}
+          <NewGoalCard currency={currency} />
+        </div>
+      )}
     </div>
   );
 }

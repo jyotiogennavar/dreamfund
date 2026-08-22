@@ -17,8 +17,8 @@ export const GOAL_CATEGORIES = [
 ] as const;
 
 export const GOAL_STATUSES: { value: GoalStatus; label: string }[] = [
-  { value: "Not Started", label: "Not Started" },
-  { value: "In Progress", label: "In Progress" },
+  { value: "Not Started", label: "Not started" },
+  { value: "In Progress", label: "In progress" },
   { value: "Completed", label: "Completed" },
 ];
 
@@ -41,7 +41,7 @@ export function priorityLabel(priority: GoalPriority): string {
 }
 
 export const PRIORITY_PILL_CLASS: Record<GoalPriority, string> = {
-  HIGH: "bg-destructive/10 text-destructive",
-  MEDIUM: "bg-amber-500/15 text-amber-800 dark:text-amber-300",
-  LOW: "bg-sky-500/12 text-sky-800 dark:text-sky-300",
+  HIGH: "bg-priority-high text-priority-high-foreground",
+  MEDIUM: "bg-priority-medium text-priority-medium-foreground",
+  LOW: "bg-priority-low text-priority-low-foreground",
 };

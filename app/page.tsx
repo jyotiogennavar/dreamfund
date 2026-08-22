@@ -25,24 +25,30 @@ async function HomeContent() {
   );
 
   return (
-    <div className="flex-1 flex flex-col gap-8">
+    <div className="flex flex-1 flex-col gap-8">
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            Your Goals
+            Your goals
           </h2>
           <AddGoalButton currency={currency} />
         </div>
 
         {activeGoals.length === 0 ? (
           <Placeholder
-            label={goals.length === 0 ? "No goals yet" : "No active goals"}
+            label={
+              goals.length === 0
+                ? "You haven’t created a goal yet"
+                : "Every goal is complete"
+            }
             description={
               goals.length === 0
-                ? "Create your first savings goal to start tracking progress."
+                ? "Add a savings goal to start tracking what you’re working toward."
                 : "Completed goals stay on the Goals page. Add a new one to keep saving."
             }
-          />
+          >
+            <AddGoalButton currency={currency} />
+          </Placeholder>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {activeGoals.slice(0, 3).map((goal) => (

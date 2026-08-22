@@ -44,8 +44,8 @@ export function RecentTransactions({
       </h2>
       {transactions.length === 0 ? (
         <Placeholder
-          label="No deposits yet"
-          description="Deposits will show up here once you start saving."
+          label="You haven’t logged a deposit yet"
+          description="Deposits show up here once you start saving toward a goal."
         />
       ) : (
         <Card>
@@ -60,7 +60,7 @@ export function RecentTransactions({
                   <TableHead>Description</TableHead>
                   <TableHead>Goal</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-end">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -74,7 +74,7 @@ export function RecentTransactions({
                     <TableCell>
                       {categoryLabel(transaction.category)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-end">
                       {formatMoney(transaction.amount, currency)}
                     </TableCell>
                   </TableRow>

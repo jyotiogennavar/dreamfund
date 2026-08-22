@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "motion/react";
 import {
   ThemeProvider as NextThemeProvider,
   type ThemeProviderProps,
@@ -15,7 +16,7 @@ const ThemeProvider = ({ children, ...props }: ThemeProviderProps) => {
       scriptProps={{ type: "application/json" }}
       {...props}
     >
-      {children}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </NextThemeProvider>
   );
 };

@@ -1,9 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { toast } from "sonner";
 
 import { useActionFeedback } from "@/components/form/hooks/use-action-feedback";
-import { shouldShowFormError, type ActionState } from "@/lib/form";
+import { focusFirstInvalid, shouldShowFormError, type ActionState } from "@/lib/form";
 
 type FormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -26,6 +27,8 @@ export function Form({
   onSuccess,
   onError,
 }: FormProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+
   useActionFeedback(actionState, {
     onSuccess: (state) => {
       if (state.message) {
@@ -37,14 +40,24 @@ export function Form({
       if (shouldShowFormError(state.message, {}, state.fieldErrors)) {
         toast.error(state.message);
       }
+      if (formRef.current) {
+        focusFirstInvalid(formRef.current);
+      }
       onError?.(state);
     },
   });
 
   return (
     <form
+      ref={formRef}
       action={action}
-      onSubmit={onSubmit}
+      onSubmit={(event) => {
+        onSubmit?.(event);
+        if (event.defaultPrevented) {
+          const form = event.currentTarget;
+          queueMicrotask(() => focusFirstInvalid(form));
+        }
+      }}
       noValidate={noValidate}
       className={className}
     >

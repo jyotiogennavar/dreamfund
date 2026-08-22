@@ -26,7 +26,7 @@ export function DeleteGoalButton({
       title={`Delete “${goalName}”?`}
       description="This cannot be undone."
       action={deleteGoal.bind(null, goalId)}
-      confirmLabel="Delete"
+      confirmLabel="Delete goal"
       pendingLabel="Deleting…"
       onSuccess={() => {
         router.push(goalsPath());

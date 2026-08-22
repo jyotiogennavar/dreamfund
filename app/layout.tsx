@@ -45,7 +45,7 @@ export default function RootLayout({
       )}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -53,12 +53,18 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
+            <a href="#main-content" className="skip-link">
+              Skip to content
+            </a>
             <SidebarProvider className="flex flex-col">
               <AppHeader />
               <div className="flex min-h-0 flex-1">
                 <AppSidebar />
                 <SidebarInset className="rounded-2xl bg-canvas">
-                  <main className="flex flex-1 flex-col gap-4 rounded-2xl bg-canvas p-4 md:p-6">
+                  <main
+                    id="main-content"
+                    className="flex flex-1 flex-col gap-4 rounded-[max(0px,calc(var(--radius-2xl)-1rem))] bg-canvas p-4 md:p-6"
+                  >
                     <Suspense fallback={<PageSpinner />}>{children}</Suspense>
                   </main>
                 </SidebarInset>

@@ -15,7 +15,7 @@ export default function Error({
   return (
     <Placeholder
       label={error.message || "Something went wrong"}
-      description="We couldn't load your analytics. Try again, or come back later."
+      description="We couldn’t load your analytics. Try again, or come back later."
       icon={<CircleAlertIcon className="text-muted-foreground size-10" aria-hidden />}
     >
       <Button onClick={reset}>Try again</Button>

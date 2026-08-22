@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -40,6 +48,13 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-canvas: var(--canvas);
+  --color-priority-high: var(--priority-high);
+  --color-priority-high-foreground: var(--priority-high-foreground);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-medium-foreground: var(--priority-medium-foreground);
+  --color-priority-low: var(--priority-low);
+  --color-priority-low-foreground: var(--priority-low-foreground);
+  --color-image-stroke: var(--image-stroke);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -53,6 +68,7 @@
   --ease-vaul: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-125: 125ms;
   --duration-180: 180ms;
+  --duration-200: 200ms;
   --duration-270: 270ms;
 }
 
@@ -91,6 +107,13 @@
   --sidebar-border: oklch(0.925 0.005 214.3);
   --sidebar-ring: oklch(0.723 0.014 214.4);
   --canvas: oklch(0.972 0.016 78);
+  --priority-high: oklch(0.577 0.245 27.325 / 10%);
+  --priority-high-foreground: oklch(0.505 0.213 27.325);
+  --priority-medium: oklch(0.769 0.164 70.08 / 15%);
+  --priority-medium-foreground: oklch(0.473 0.137 46.2);
+  --priority-low: oklch(0.685 0.148 237.32 / 12%);
+  --priority-low-foreground: oklch(0.443 0.11 254.3);
+  --image-stroke: oklch(0 0 0 / 8%);
 }
 
 .dark {
@@ -126,19 +149,104 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.56 0.021 213.5);
   --canvas: oklch(0.176 0.016 78);
+  --priority-high: oklch(0.704 0.191 22.216 / 16%);
+  --priority-high-foreground: oklch(0.808 0.103 22.216);
+  --priority-medium: oklch(0.769 0.164 70.08 / 16%);
+  --priority-medium-foreground: oklch(0.836 0.129 75.35);
+  --priority-low: oklch(0.685 0.148 237.32 / 16%);
+  --priority-low-foreground: oklch(0.828 0.089 230.3);
+  --image-stroke: oklch(1 0 0 / 8%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: auto;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+    scroll-margin-top: 4.5rem;
+  }
+
+  p,
+  [data-slot="card-description"],
+  [data-slot="dialog-description"],
+  [data-slot="alert-dialog-description"] {
+    text-wrap: pretty;
+  }
+
+  :where(p, li, td, [data-slot="card-title"], [data-slot="card-description"]) {
+    overflow-wrap: break-word;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  img {
+    outline: 1px solid var(--image-stroke);
+    outline-offset: -1px;
+  }
+
+  [data-slot="badge"],
+  [data-slot="label"] {
+    white-space: nowrap;
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    inset-inline-start: 1rem;
+    top: 0.75rem;
+    z-index: 80;
+    border-radius: var(--radius-button);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  .skip-link:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--ring) 40%, transparent);
+    outline-offset: 2px;
+  }
+
+  .measure {
+    max-width: 65ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   html {
-    @apply font-sans;
+    scroll-behavior: auto;
   }
 }

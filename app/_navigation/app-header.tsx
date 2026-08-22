@@ -15,10 +15,10 @@ export function AppHeader() {
         href={homePath()}
         className="flex items-center gap-2 font-heading text-base font-semibold tracking-tight"
       >
-        <HandCoins className="size-4" />
+        <HandCoins className="size-4 translate-y-px" aria-hidden />
         <span>Dreamfund</span>
       </Link>
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ms-auto flex items-center gap-2">
         <ThemeSwitcher />
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="size-4" />

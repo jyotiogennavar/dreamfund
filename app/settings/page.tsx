@@ -10,7 +10,7 @@ export default async function SettingsPage() {
         <h2 className="font-heading text-2xl font-semibold tracking-tight">
           Settings
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted-foreground measure mt-1 text-pretty text-sm">
           Manage your profile, preferences, and demo data.
         </p>
       </div>

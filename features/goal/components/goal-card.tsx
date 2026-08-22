@@ -13,6 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { AddDepositDialog } from "@/features/goal/components/add-deposit-dialog";
 import {
@@ -33,7 +38,7 @@ const footerSpring = { type: "spring", duration: 0.3, bounce: 0 } as const;
 const footerFade = { duration: 0.2, ease: [0.19, 1, 0.22, 1] } as const;
 const footerShown = "translateY(0%)";
 const footerHidden = "translateY(100%)";
-const hitboxClass = "relative after:absolute after:-inset-2.5 after:content-['']";
+const hitboxClass = "relative after:absolute after:-inset-y-2 after:-inset-x-1 after:content-['']";
 
 type GoalCardProps = {
   goal: EditableGoal;
@@ -65,16 +70,17 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
     >
       <Link
         href={goalPath(goal.id)}
-        className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="absolute inset-0 z-0 rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span className="sr-only">{goal.name}</span>
       </Link>
       <CardHeader className="pointer-events-none gap-2">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle>{goal.name}</CardTitle>
+          <CardTitle className="min-w-0">{goal.name}</CardTitle>
           <span
+            data-slot="badge"
             className={cn(
-              "shrink-0 rounded-full px-3 py-1 text-xs font-medium",
+              "shrink-0 rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap",
               PRIORITY_PILL_CLASS[goal.priority],
             )}
           >
@@ -82,9 +88,19 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
           </span>
         </div>
         {goal.description ? (
-          <CardDescription className="line-clamp-2 text-[0.8rem]">
-            {goal.description}
-          </CardDescription>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardDescription
+                tabIndex={0}
+                className="pointer-events-auto line-clamp-2 min-w-0 cursor-default text-[0.8rem]"
+              >
+                {goal.description}
+              </CardDescription>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs text-pretty">
+              {goal.description}
+            </TooltipContent>
+          </Tooltip>
         ) : null}
       </CardHeader>
       <CardContent className="pointer-events-none flex flex-col gap-3">
@@ -123,7 +139,7 @@ export function GoalCard({ goal, currency }: GoalCardProps) {
         transition={shouldReduceMotion ? footerFade : footerSpring}
         aria-hidden={!actionsOpen}
         inert={!actionsOpen}
-        className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-end bg-muted px-(--card-spacing) py-2"
+        className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-end rounded-b-2xl bg-muted px-(--card-spacing) py-2 will-change-transform"
       >
         <div className="flex items-center gap-1.5">
           <AddDepositDialog

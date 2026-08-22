@@ -123,10 +123,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Full name</Label>
               <Input
                 id="name"
                 name="name"
+                type="text"
+                autoComplete="name"
+                inputMode="text"
                 defaultValue={user.name ?? ""}
                 aria-invalid={Boolean(errorFor("name"))}
                 aria-describedby={errorFor("name") ? "name-error" : undefined}
@@ -139,6 +142,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 id="email"
                 name="email"
                 type="email"
+                inputMode="email"
                 autoComplete="email"
                 defaultValue={user.email}
                 aria-invalid={Boolean(errorFor("email"))}
@@ -157,12 +161,14 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
-            <Label>Currency</Label>
+            <Label htmlFor="currency">Currency</Label>
             <input type="hidden" name="currency" value={currency} />
             <Select value={currency} onValueChange={setCurrency}>
               <SelectTrigger
+                id="currency"
                 className="w-full sm:max-w-xs"
                 aria-invalid={Boolean(errorFor("currency"))}
+                aria-describedby={errorFor("currency") ? "currency-error" : undefined}
               >
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
@@ -203,9 +209,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
             />
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="notifyGoalAchieved">Goal Achieved</Label>
-                <p className="text-muted-foreground text-xs">
-                  When a goal reaches its target.
+                <Label htmlFor="notifyGoalAchieved">Goal reached alerts</Label>
+                <p className="text-muted-foreground text-pretty text-xs">
+                  Notify you when a goal reaches its target.
                 </p>
               </div>
               <Switch
@@ -216,9 +222,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="notifyMonthlySummary">Monthly Summary</Label>
-                <p className="text-muted-foreground text-xs">
-                  A monthly recap of savings progress.
+                <Label htmlFor="notifyMonthlySummary">Monthly summary emails</Label>
+                <p className="text-muted-foreground text-pretty text-xs">
+                  Send you a monthly recap of savings progress.
                 </p>
               </div>
               <Switch
@@ -229,9 +235,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="notifyDepositReminder">Deposit Reminder</Label>
-                <p className="text-muted-foreground text-xs">
-                  Occasional nudges to keep depositing.
+                <Label htmlFor="notifyDepositReminder">Deposit reminders</Label>
+                <p className="text-muted-foreground text-pretty text-xs">
+                  Send you occasional nudges to keep depositing.
                 </p>
               </div>
               <Switch
@@ -254,7 +260,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
         ) : null}
 
         <SubmitButton
-          label="Save Settings"
+          label="Save settings"
           pendingLabel="Saving…"
           className="motion-safe:hover:scale-100!"
         />
@@ -262,7 +268,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Data Management</CardTitle>
+          <CardTitle>Data management</CardTitle>
           <CardDescription>
             Export your goals and deposits, or wipe demo data.
           </CardDescription>

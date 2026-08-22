@@ -89,7 +89,7 @@ export function GoalDetail({
               {goal.name}
             </h2>
             {goal.description ? (
-              <p className="text-muted-foreground max-w-2xl text-sm">
+              <p className="text-muted-foreground measure text-pretty text-sm">
                 {goal.description}
               </p>
             ) : null}
@@ -162,7 +162,7 @@ export function GoalDetail({
 
         <Card>
           <CardHeader>
-            <CardTitle>Monthly Target</CardTitle>
+            <CardTitle>Monthly target</CardTitle>
             <CardDescription>
               Keep a steady pace to hit your deadline.
             </CardDescription>
@@ -187,14 +187,20 @@ export function GoalDetail({
 
       <section className="flex flex-col gap-4">
         <h3 className="font-heading text-xl font-semibold tracking-tight">
-          Recent Contributions
+          Recent contributions
         </h3>
         {contributions.length === 0 ? (
           <Placeholder
-            label="No deposits yet"
-            description="Add a deposit to start tracking contributions."
+            label="You haven’t logged a deposit yet"
+            description="Add a deposit to start tracking contributions toward this goal."
             className="py-10"
-          />
+          >
+            <AddDepositDialog
+              goals={goalOptions}
+              defaultGoalId={goal.id}
+              currency={currency}
+            />
+          </Placeholder>
         ) : (
           <Card>
             <CardContent>
@@ -203,7 +209,7 @@ export function GoalDetail({
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-end">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -213,7 +219,7 @@ export function GoalDetail({
                         {format(new Date(item.createdAt), "PP")}
                       </TableCell>
                       <TableCell>{item.note || "Deposit"}</TableCell>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="text-end">
                         {formatMoney(item.amount, currency)}
                       </TableCell>
                     </TableRow>

@@ -52,7 +52,6 @@ import { cn } from "@/lib/utils";
 import {
   deadlineDateRange,
   dateOnlyFromStored,
-  isDateOnlyInRange,
 } from "@/utils/date-only";
 import { formatMoney, sanitizeMoneyInput, toNumber } from "@/utils/money";
 
@@ -155,14 +154,6 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
     );
   }, [targetAmount, startingAmount, deadline]);
 
-  const isFormComplete =
-    name.trim().length > 0 &&
-    description.trim().length > 0 &&
-    targetAmount.trim().length > 0 &&
-    (isEditing || startingAmount.trim().length > 0) &&
-    deadline != null &&
-    isDateOnlyInRange(deadline, minDeadline, maxDeadline);
-
   return (
     <Form
       action={formAction}
@@ -174,11 +165,13 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
       {goal ? <input type="hidden" name="goalId" value={goal.id} /> : null}
 
       <div className="grid gap-2">
-        <Label htmlFor={`${formId}-name`}>Goal Name</Label>
+        <Label htmlFor={`${formId}-name`}>Goal name</Label>
         <Input
           id={`${formId}-name`}
           name="name"
-          placeholder="e.g. Japan Trip"
+          type="text"
+          autoComplete="off"
+          placeholder="e.g. Japan trip"
           value={name}
           maxLength={MAX_GOAL_NAME_LENGTH}
           aria-invalid={Boolean(errorFor("name"))}
@@ -222,7 +215,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
 
       <div className={cn("grid gap-4", !isEditing && "sm:grid-cols-2")}>
         <div className="grid gap-2">
-          <Label htmlFor={`${formId}-targetAmount`}>Target Amount</Label>
+          <Label htmlFor={`${formId}-targetAmount`}>Target amount</Label>
           <CurrencyInput
             id={`${formId}-targetAmount`}
             name="targetAmount"
@@ -246,7 +239,7 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
         </div>
         {!isEditing ? (
           <div className="grid gap-2">
-            <Label htmlFor={`${formId}-startingAmount`}>Starting Amount</Label>
+            <Label htmlFor={`${formId}-startingAmount`}>Starting amount</Label>
             <CurrencyInput
               id={`${formId}-startingAmount`}
               name="startingAmount"
@@ -389,9 +382,9 @@ function CreateGoalForm({ currency, goal, onSuccess }: CreateGoalFormProps) {
           </Button>
         </DialogClose>
         <SubmitButton
-          label={isEditing ? "Save Changes" : "Create Goal"}
+          label={isEditing ? "Save changes" : "Create goal"}
           pendingLabel={isEditing ? "Saving…" : "Creating…"}
-          disabled={!isFormComplete || isPending}
+          disabled={isPending}
         />
       </DialogFooter>
     </Form>
@@ -412,13 +405,13 @@ export function CreateGoalDialog({
         {trigger ?? (
           <Button>
             <PlusIcon data-icon="inline-start" />
-            Add Goal
+            Add goal
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto [--dialog-max-width:42rem]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Goal" : "Create Goal"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit goal" : "Create goal"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update the details for this savings goal."

@@ -113,7 +113,7 @@ function AlertDialogContent({
             >
               <motion.div
                 className={cn(
-                  "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[min(var(--dialog-max-width,28rem),calc(100%-2rem))] gap-6 rounded-4xl bg-popover p-6 text-sm text-popover-foreground shadow-xl ring-1 ring-foreground/5 outline-none dark:ring-foreground/10",
+                  "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[min(var(--dialog-max-width,28rem),calc(100%-2rem))] gap-6 rounded-4xl bg-popover p-6 text-sm text-popover-foreground shadow-xl ring-1 ring-foreground/5 outline-none [--nested-radius:max(0px,calc(var(--radius-4xl)-1.5rem))] dark:ring-foreground/10",
                   className,
                 )}
                 initial={{ opacity: 0, transform: hiddenTransform }}
@@ -171,7 +171,7 @@ function AlertDialogTitle({
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
       className={cn(
-        "font-heading text-base leading-none font-medium",
+        "font-heading text-base leading-none font-medium text-balance",
         className,
       )}
       {...props}
@@ -187,7 +187,7 @@ function AlertDialogDescription({
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
       className={cn(
-        "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+        "text-pretty text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
         className,
       )}
       {...props}

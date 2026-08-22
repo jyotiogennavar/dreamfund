@@ -153,7 +153,7 @@ export function CurrencyInput({
         ref={inputRef}
         id={id}
         type="text"
-        inputMode="numeric"
+        inputMode="decimal"
         autoComplete="off"
         spellCheck={false}
         value={formatted}

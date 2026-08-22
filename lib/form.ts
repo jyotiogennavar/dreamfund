@@ -129,6 +129,13 @@ export function shouldShowFormError(
   return !fieldMessages.has(error);
 }
 
+export function focusFirstInvalid(form: HTMLFormElement) {
+  const invalid = form.querySelector<HTMLElement>(
+    '[aria-invalid="true"], [data-invalid="true"]',
+  );
+  invalid?.focus();
+}
+
 export function parseForm<T extends z.ZodType>(schema: T, formData: FormData) {
   const result = schema.safeParse(formValues(formData));
 

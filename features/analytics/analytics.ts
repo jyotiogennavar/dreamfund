@@ -23,8 +23,8 @@ export function buildCompletionChartData(
     overallPercent: overallTargetPercent(goals),
     segments: [
       { name: "Completed", value: counts.Completed, fill: "var(--chart-1)" },
-      { name: "In Progress", value: counts["In Progress"], fill: "var(--chart-2)" },
-      { name: "Not Started", value: counts["Not Started"], fill: "var(--chart-3)" },
+      { name: "In progress", value: counts["In Progress"], fill: "var(--chart-2)" },
+      { name: "Not started", value: counts["Not Started"], fill: "var(--chart-3)" },
     ].filter((segment) => segment.value > 0),
   };
 }

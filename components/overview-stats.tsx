@@ -29,22 +29,22 @@ type OverviewStatsProps = {
 const stats = [
   {
     key: "totalSaved",
-    label: "Total Saved",
+    label: "Total saved",
     format: (value: number, currency: string) => formatMoney(value, currency),
   },
   {
     key: "totalGoals",
-    label: "Total Goals",
+    label: "Total goals",
     format: (value: number) => String(value),
   },
   {
     key: "amountNeeded",
-    label: "Amount Needed",
+    label: "Amount needed",
     format: (value: number, currency: string) => formatMoney(value, currency),
   },
   {
     key: "avgMonthlySavings",
-    label: "Avg. Monthly Savings",
+    label: "Avg. monthly savings",
     format: (value: number, currency: string) => formatMoney(value, currency),
   },
 ] as const;
@@ -101,7 +101,7 @@ function OverviewStatCard({
       {shouldReduceMotion ? null : (
         <motion.span
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom_right,var(--chart-1),var(--chart-2),var(--chart-3),var(--chart-4),var(--chart-5))] blur-2xl"
+          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom_right_in_oklab,var(--chart-1),var(--chart-2),var(--chart-3),var(--chart-4),var(--chart-5))] blur-2xl"
           style={{ maskImage, WebkitMaskImage: maskImage }}
           initial={false}
           animate={{ opacity: spotlight ? 0.4 : 0 }}

@@ -14,9 +14,9 @@ export function AddGoalButton({ currency }: AddGoalButtonProps) {
     <CreateGoalDialog
       currency={currency}
       trigger={
-        <Button className="px-5 has-data-[icon=inline-start]:pl-5">
+        <Button className="px-5 has-data-[icon=inline-start]:ps-5">
           <PlusIcon data-icon="inline-start" />
-          Add Goal
+          Add goal
         </Button>
       }
     />

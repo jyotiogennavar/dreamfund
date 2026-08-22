@@ -25,7 +25,7 @@ describe("buildCompletionChartData", () => {
       result.segments.map((segment) => [segment.name, segment.value]),
       [
         ["Completed", 1],
-        ["Not Started", 1],
+        ["Not started", 1],
       ],
     );
   });
@@ -38,7 +38,7 @@ describe("buildCompletionChartData", () => {
 
     assert.equal(result.overallPercent, 99);
     assert.equal(result.segments.length, 1);
-    assert.equal(result.segments[0]?.name, "In Progress");
+    assert.equal(result.segments[0]?.name, "In progress");
     assert.equal(result.segments[0]?.value, 2);
   });
 

@@ -24,13 +24,13 @@ export function PriorityChart({ segments }: PriorityChartProps) {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Goal by Priority</CardTitle>
+        <CardTitle>Goals by priority</CardTitle>
         <CardDescription>How your goals are prioritized.</CardDescription>
       </CardHeader>
       <CardContent>
         {segments.length === 0 ? (
           <p className="text-muted-foreground py-16 text-center text-sm">
-            No goals to chart yet.
+            Add a goal to see this chart.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -69,7 +69,7 @@ export function PriorityChart({ segments }: PriorityChartProps) {
                     style={{ backgroundColor: segment.fill }}
                   />
                   <span className="text-muted-foreground">{segment.name}</span>
-                  <span className="ml-auto tabular-nums">{segment.value}</span>
+                  <span className="ms-auto tabular-nums">{segment.value}</span>
                 </li>
               ))}
             </ul>

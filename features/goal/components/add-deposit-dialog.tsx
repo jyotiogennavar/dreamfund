@@ -199,7 +199,7 @@ function AddDepositForm({
       ) : null}
 
       <DialogFooter>
-        <SubmitButton label="Save Deposit" pendingLabel="Saving…" />
+        <SubmitButton label="Save deposit" pendingLabel="Saving…" />
       </DialogFooter>
     </Form>
   );
@@ -223,13 +223,13 @@ export function AddDepositDialog({
         {trigger ?? (
           <Button>
             <PlusIcon data-icon="inline-start" />
-            Add Deposit
+            Add deposit
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Deposit</DialogTitle>
+          <DialogTitle>Add deposit</DialogTitle>
           <DialogDescription>
             Log a contribution toward one of your goals.
           </DialogDescription>
