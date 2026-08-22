@@ -57,8 +57,8 @@ export default function RootLayout({
               <AppHeader />
               <div className="flex min-h-0 flex-1">
                 <AppSidebar />
-                <SidebarInset>
-                  <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+                <SidebarInset className="rounded-2xl bg-canvas">
+                  <main className="flex flex-1 flex-col gap-4 rounded-2xl bg-canvas p-4 md:p-6">
                     <Suspense fallback={<PageSpinner />}>{children}</Suspense>
                   </main>
                 </SidebarInset>

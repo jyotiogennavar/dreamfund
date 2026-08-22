@@ -82,7 +82,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="top-14! h-[calc(100svh-3.5rem)]! border-double"
+      className="top-14! h-[calc(100svh-3.5rem)]! border-none group-data-[side=left]:border-r-0"
     >
       <SidebarContent>
         <SidebarGroup className="mt-4">
