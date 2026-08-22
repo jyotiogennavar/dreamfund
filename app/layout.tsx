@@ -60,13 +60,13 @@ export default function RootLayout({
               <AppHeader />
               <div className="flex min-h-0 flex-1">
                 <AppSidebar />
-                <SidebarInset className="rounded-2xl bg-canvas">
-                  <main
-                    id="main-content"
-                    className="flex flex-1 flex-col gap-4 rounded-[max(0px,calc(var(--radius-2xl)-1rem))] bg-canvas p-4 md:p-6"
-                  >
+                <SidebarInset
+                  id="main-content"
+                  className="overflow-hidden rounded-2xl bg-canvas"
+                >
+                  <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
                     <Suspense fallback={<PageSpinner />}>{children}</Suspense>
-                  </main>
+                  </div>
                 </SidebarInset>
               </div>
             </SidebarProvider>

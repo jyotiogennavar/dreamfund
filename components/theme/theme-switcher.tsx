@@ -28,7 +28,9 @@ const ThemeSwitcher = () => {
   const label = mounted ? `Switch to ${nextTheme} theme` : "Switch theme";
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 100);
   }, []);
 
   return (
